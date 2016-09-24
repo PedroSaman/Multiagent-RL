@@ -20,12 +20,16 @@ class Result:
     """Container for simulations data."""
 
     def __init__(self, name, avg_score=0, win_rate=0):
-        """Constructor for the Resut Class.
+        """Constructor for the Result Class.
 
         Args:
             name (str): Name of the game test being created.
             avg_score (float): Average score for the test. Default = 0.
             win_rate (float): Win rate for the test. Default = 0.
+        Attributes:
+            name: Name of the game test being created.
+            avg_score: Average score for the test.
+            win_rate: Win rate for the test.
         """
         self.name = name
         self.avg_score = avg_score
