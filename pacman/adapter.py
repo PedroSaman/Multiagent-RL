@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 #  -*- coding: utf-8 -*-
-"""
-Adapts communication between controller and the Berkeley Pac-man simulator.
+"""Adapts Communication.
+
+Adapts Communication. between controller and the Berkeley Pac-man simulator.
 """
 
 import pickle
@@ -39,14 +40,32 @@ RECORD_BERKELEY_GAMES = False
 
 
 def log(msg):
+    """Print adapter message."""
     print '[  Adapter ] {}'.format(msg)
 
 
 # @todo Parse arguments outside class, pass values as arguments for
 # constructor.
 class Adapter(object):
-    # @todo define pacman-agent choices and ghost-agent choices from agents.py
-    # file
+    """Some Stuff.
+
+    Attributes:
+        layout: The initialized layout.
+        pacman_class: The initialized pacman.
+        num_ghosts: The initialized number of ghosts.
+        learn_runs: The initialized number of learning runs.
+        test_runs: The initialized number of test runs.
+        display: The graphics of the simulations if graphics were set to
+        'True'.
+        policy_file: The name of the policy_file.
+        all_agents: The pacman and the ghosts agents.
+        ghost_class: The initialized ghosts.
+        ghosts: The identifier of all the ghosts
+        pacman: Instance of PacmanAdapterAgent.
+    TODO:
+        Define pacman-agent choices and ghost-agent choices from agents.py file
+    """
+
     def __init__(self,
                  pacman_agent=DEFAULT_PACMAN_AGENT,
                  ghost_agent=DEFAULT_GHOST_AGENT,
@@ -59,6 +78,36 @@ class Adapter(object):
                  client=None,
                  output_file=DEFAULT_OUTPUT_FILE,
                  graphics=False):
+        """Constructor for the Adapter class.
+
+        Setup the layout, the pacman agent, the ghosts agents, the policy file,
+        the number of learning and tests, the output file and the graphics
+        activation for the runs.
+
+        Args:
+            pacman_agent: Pacman agent to be initialized,
+            default is 'random'.
+            ghost_agent: Ghost agent to be initialized, default is 'ai'.
+            num_ghosts: Number of ghosts to be initialized, default is 3.
+            noise: Noise, default is 0.
+            policy_file: Name of the file for saving or loading policies,
+            default is None.
+            layout: Layout of the game, default is 'Classic'.
+            learn_runs: Number of learing simulations, default is 100.
+            test_runs: Number of test simulations, default is 15.
+            client:
+            output_file: File for saving the simulations results, default
+            is 'output.txt'.
+            graphics: Enable or disable the simulations graphics, default
+            is 'False'.
+        Raises:
+            ValueError: Layout file missing.
+            ValueError: Pac-Man agent does not exist.
+            ValueError: Unexpected ghosts number.
+            ValueError: Ghost agent does not exist.
+            ValueError: Unexpected number of learing simulations.
+            ValueError: Unexpected number of test simulations.
+        """
         # Setup layout
         LAYOUT_PATH = 'pacman/layouts'
         file_name = str(num_ghosts) + 'Ghosts'
@@ -130,24 +179,56 @@ class Adapter(object):
         log('Ready')
 
     def __initialize__(self, agent):
+        """Request the initialization message for the agent id.
+
+        Args:
+            agent: The agent to initialize communication.
+        """
         msg = comm.RequestInitializationMessage(agent_id=agent.agent_id)
         agent.communicate(msg)
 
     def __get_behavior_count__(self, agent):
+        """Request the behavior count from the agent id.
+
+        Args:
+            agent: The agent to get the behavior.
+        Returns:
+            The count of reply messages.
+        """
         msg = comm.RequestBehaviorCountMessage(agent_id=agent.agent_id)
         reply_msg = agent.communicate(msg)
         return reply_msg.count
 
     def __get_policy__(self, agent):
+        """Request the policy from the agent id.
+
+        Args:
+            agent: The agent to get the policy.
+        Returns:
+            The policy replied.
+        """
         msg = comm.RequestPolicyMessage(agent.agent_id)
         reply_msg = agent.communicate(msg)
         return reply_msg.policy
 
     def __load_policy__(self, agent, policy):
+        """Pass the policy message of the agent id.
+
+        Args:
+            agent: The agent to load the policy.
+            policy: The policy to load to the agent.
+        Returns:
+            The receive of the communication message
+        """
         msg = comm.PolicyMessage(agent_id=agent.agent_id, policy=policy)
         return agent.communicate(msg)
 
     def __load_policies_from_file__(self, filename):
+        """Load policies from file.
+
+        Args:
+            filename: Name of the file to load policies from.
+        """
         policies = {}
         if filename and os.path.isfile(filename):
             log('Loading policies from {}.'.format(filename))
@@ -156,6 +237,14 @@ class Adapter(object):
         return policies
 
     def __log_behavior_count__(self, agent, results):
+        """Log the behaviors.
+
+        Log the behaviors and the respective counts for each one of the agents
+
+        Args:
+            agent: The agent which will log the behavior.
+            results: The results of the behaviors count.
+        """
         behavior_count = self.__get_behavior_count__(agent)
 
         for behavior, count in behavior_count.items():
@@ -167,6 +256,14 @@ class Adapter(object):
                                             behavior_count))
 
     def __process_game__(self, policies, results):
+        """Process the game.
+
+        Start new game, load policies to agents, update agentes rewards, log
+        the behavior count and log score.
+        Args:
+            policies:
+            results:
+        """
         # Start new game
         for agent in self.all_agents:
             agent.start_game(self.layout)
@@ -187,9 +284,10 @@ class Adapter(object):
         for agent in self.all_agents:
             agent.update(simulated_game.state)
 
-        # @todo this as one list, probably by checking if agent is
+        """TODO:
+            This as one list, probably by checking if agent is
         # instance of BehaviorLearningAgent (needs refactoring).
-
+        """
         # Log behavior count
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
             self.__log_behavior_count__(self.pacman, results)
@@ -202,6 +300,17 @@ class Adapter(object):
         return simulated_game.state.getScore()
 
     def __register_agent__(self, agent, agent_team, agent_class):
+        """Request register message.
+
+        Request register message for the agent id and log its action.
+
+        Args:
+            agent: The agent to register.
+            agent_team: The agent team.
+            agent_class: The agent class.
+        Returns:
+            The receive of the communication message.
+        """
         log('Request register for {} #{}.'.format(agent_class.__name__,
                                                   agent.agent_id))
         msg = comm.RequestRegisterMessage(agent_id=agent.agent_id,
@@ -210,8 +319,14 @@ class Adapter(object):
         return agent.communicate(msg)
 
     def __save_policies__(self, policies):
+        """Save the policies from pacman and ghosts in the policy_file.
+
+        Args:
+            policies: The ghosts and pacman policies.
+        TODO:
+            Keep policy in agent?
+        """
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
-            # @todo keep policy in agent?
             policies[self.pacman.agent_id] = self.__get_policy__(self.pacman)
 
         if self.ghost_class == agents.BehaviorLearningGhostAgent:
@@ -221,16 +336,28 @@ class Adapter(object):
         self.__write_to_file__(self.policy_file, policies)
 
     def __write_to_file__(self, filename, content):
+        """Write content to a file.
+
+        Args:
+            filename: Name of the file.
+            content: content to be writen on the file.
+        """
         with open(filename, 'w') as f:
             f.write(pickle.dumps(content))
 
     def run(self):
+        """Run the simulations.
+
+        Load policies from file, initialize agents, process the game and save
+        policies in file.
+        """
         log('Now running')
 
         results = {'learn_scores': [], 'test_scores': [], 'behavior_count': {}}
 
-        # @todo this as one list, probably by checking if agent is instance of
-        # BehaviorLearningAgent (needs refactoring).
+        """TODO: This as one list, probably by checking if agent is instance of
+        BehaviorLearningAgent (needs refactoring).
+        """
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
             results['behavior_count'][self.pacman.agent_id] = {}
 
