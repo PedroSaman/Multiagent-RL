@@ -23,6 +23,17 @@ __email__ = "gnramos@unb.br"
 
 
 def get_Adapter():
+    """Parse all the arguments to the CLI.
+
+    Parses graphics, output_file, ghost_agent, learn_runs, layout, noise,
+    num_ghosts, pacman_agent, policy_file, test_runs, address and port.
+
+    Initialize client as a TCPClient and adapter as a Adapter, passing all its
+    arguments.
+
+    Returns:
+        The adapter object of Adapter Class.
+    """
     parser = ArgumentParser(description='Run Pac-Man adapter system.')
     parser.add_argument('-g', '--graphics', dest='graphics', default=False,
                         action='store_true',
@@ -88,6 +99,13 @@ def get_Adapter():
 
 
 def get_Controller():
+    """Get the Controller.
+
+    Parse port, instantiate server as a TCPServer.
+
+    Returns:
+        The controller of the server instantiated.
+    """
     parser = ArgumentParser(description='Run Pac-Man controller system.')
     parser.add_argument('--port', dest='port', type=int,
                         default=DEFAULT_TCP_PORT,

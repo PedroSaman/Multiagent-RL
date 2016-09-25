@@ -13,15 +13,45 @@ __email__ = "gnramos@unb.br"
 
 
 class Behavior(object):
+    """Base class for behaviors implementation."""
+
     def __str__(self):
+        """Define the work of str() when its called.
+
+        Returns:
+            The class name
+        """
         return self.__class__.__name__
 
     def __call__(self, state, legal_actions):
+        """Base __call__ method.
+
+        This method needs to be overwrited by a __call__ function on a
+        subclass.
+
+        Args:
+            state: A defined state.
+            legal_actions: A list of legal actions.
+        Raises:
+            NotImplementedError: Behavior must implement __call__
+        """
         raise NotImplementedError('Behavior must implement __call__')
 
 
 class RandomBehavior(Behavior):
+    """Class for the Random Behavior."""
+
     def __call__(self, state, legal_actions):
+        """Choose a random action.
+
+        If not legal action avaiable stay still.
+
+        Args:
+            state: A defined state.
+            legal_actions: A list of legal actions.
+        Returns:
+            Choose a random action
+        """
         if legal_actions == []:
             return 'Stop'
         else:
@@ -29,7 +59,17 @@ class RandomBehavior(Behavior):
 
 
 class EatBehavior(Behavior):
+    """Class for the eat behavior."""
+
     def __call__(self, state, legal_actions):
+        """Calculate the best action to get a food.
+
+        Args:
+            state: A defined state.
+            legal_actions: A list of legal actions.
+        Returns:
+            The best action for this behavior.
+        """
         agent_position = state.get_position()
         agent_map = state.get_map()
         food_map = state.food_map
@@ -59,7 +99,17 @@ class EatBehavior(Behavior):
 
 
 class FleeBehavior(Behavior):
+    """Class for the flee behavior."""
+
     def __call__(self, state, legal_actions):
+        """Calculate the best action to flee from the enemy.
+
+        Args:
+            state: A defined state.
+            legal_actions: A list of legal actions.
+        Returns:
+            The best action for this behavior.
+        """
         agent_position = state.get_position()
         enemy_position = state.get_agent_position
         (state.get_closest_enemy(state))
@@ -88,7 +138,17 @@ class FleeBehavior(Behavior):
 
 
 class SeekBehavior(Behavior):
+    """Class for the Seek behavior."""
+
     def __call__(self, state, legal_actions):
+        """Calculate the best action to Seek an enemy.
+
+        Args:
+            state: A defined state.
+            legal_actions: A list of legal actions.
+        Returns:
+            The best action for this behavior.
+        """
         agent_position = state.get_position()
         enemy_position = state.get_agent_position
         (state.get_closest_enemy(state))
@@ -117,11 +177,31 @@ class SeekBehavior(Behavior):
 
 
 class PursueBehavior(Behavior):
+    """Class for the Seek behavior.
+
+    Attributes:
+        n: Steps that will be simulated, default 2.
+        enemy_previous_position: The previous position of an enemy.
+    """
+
     def __init__(self, n=2):
+        """Constructor for the PursueBehaviorClass.
+
+        Args:
+            n: Steps that will be simulated, default = 2.
+        """
         self.n = n
         self.enemy_previous_position = None
 
     def _estimate_enemy_future_position(self, current_position, agent_map):
+        """Estimate the future position of the enemy.
+
+        Args:
+            current_position: The current position of the enemy.
+            agent_map: The layout being played.
+        Returns:
+            enemy_position: The estimate position of the enemy.
+        """
         enemy_position = current_position
 
         if not self.enemy_previous_position:
@@ -142,6 +222,14 @@ class PursueBehavior(Behavior):
         return enemy_position
 
     def __call__(self, state, legal_actions):
+        """Calculate the best action to pursue an enemy.
+
+        Args:
+            state: A defined state.
+            legal_actions: A list of legal actions.
+        Returns:
+            The best action for this behavior.
+        """
         agent_map = state.get_map()
         agent_position = state.get_position()
         enemy_position = self._estimate_enemy_future_position(
