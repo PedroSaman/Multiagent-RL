@@ -198,6 +198,7 @@ class ProblemAdapter(object):
         """Calculate the reward for the given state.
 
         The subclass must overwrite this function.
+
         Args:
             state: A given state.
         Raises:
@@ -281,15 +282,15 @@ class QLearner(Learner):
         current_state: State in which the algorithm currently is.
         q_values: Matrix that stores the value for a (state, action) pair.
         learning_rate: Value in [0, 1] interval that determines how much of the
-        new information overrides the previous value. Deterministic scenarios
-        may have optimal results with learning rate of 1, which means the new
-        information completely replaces the old one.
+            new information overrides the previous value. Deterministic
+            scenarios may have optimal results with learning rate of 1, which
+            means the new information completely replaces the old one.
         discount_factor: Value in [0, 1) interval that determines the
-        importance of future rewards. 0 makes the agent myopic and greedy,
-        trying to achieve higher rewards in the next step. Closer to 1 makes
-        the agent maximize long-term rewards. Although values of 1 and higher
-        are possible, it may make the expected discounted reward infinite or
-        divergent.
+            importance of future rewards. 0 makes the agent myopic and greedy,
+            trying to achieve higher rewards in the next step. Closer to 1
+            makes the agent maximize long-term rewards. Although values of 1
+            and higher are possible, it may make the expected discounted reward
+            infinite or divergent.
     """
 
     def __init__(self, initial_state=0, num_states=0, num_actions=0,
@@ -530,12 +531,12 @@ class WindyWaterAdapter(ProblemAdapter):
     Attributes:
         initial_coordinates: The initial coordinates of the agent, [1, 0].
         actions: The possible actions of an agent.
-        [[0, 1], [-1, 0], [0, -1], [1, 0]]
+            [[0, 1], [-1, 0], [0, -1], [1, 0]]
         rows: The number of rows in the map, default is 7.
         cols: The number of cols in the map, defalut is 10.
         goal_coordinates: The coordinates of the goal, [1, 7].
         water_coordinates: The coordinates of the water tiles.
-        [[0, 3], [0, 4], [2, 3], [2, 4], [3, 3], [3, 4]]
+            [[0, 3], [0, 4], [2, 3], [2, 4], [3, 3], [3, 4]]
         wind_frequency: ...
     """
 

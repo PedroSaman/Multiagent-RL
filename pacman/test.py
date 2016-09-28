@@ -79,7 +79,7 @@ def runGame(pacmanAgent, ghostAgent, layout, repetitions):
         ghostAgent (str): Name of the Ghost agent for running the tests.
         layout (str): Name of the Layout agent for running the tests.
         repetitions (str): Number of games for the tests in string format for
-        argument processing.
+            argument processing.
     """
     print 'Running game'
 

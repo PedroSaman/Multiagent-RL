@@ -19,7 +19,7 @@ class Behavior(object):
         """Define the work of str() when its called.
 
         Returns:
-            The class name
+            The class name.
         """
         return self.__class__.__name__
 
@@ -33,7 +33,7 @@ class Behavior(object):
             state: A defined state.
             legal_actions: A list of legal actions.
         Raises:
-            NotImplementedError: Behavior must implement __call__
+            NotImplementedError: Behavior must implement __call__.
         """
         raise NotImplementedError('Behavior must implement __call__')
 
@@ -50,7 +50,7 @@ class RandomBehavior(Behavior):
             state: A defined state.
             legal_actions: A list of legal actions.
         Returns:
-            Choose a random action
+            Choose a random action.
         """
         if legal_actions == []:
             return 'Stop'

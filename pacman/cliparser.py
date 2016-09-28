@@ -105,6 +105,9 @@ def get_Controller():
 
     Returns:
         The controller of the server instantiated.
+    Todo:
+        Setup an option for a "memory" server (direct communication with
+        # Adapter) (zmq inproc?)
     """
     parser = ArgumentParser(description='Run Pac-Man controller system.')
     parser.add_argument('--port', dest='port', type=int,
@@ -112,8 +115,6 @@ def get_Controller():
                         help='TCP port to connect to adapter')
     args, unknown = parser.parse_known_args()
 
-    # @todo setup an option for a "memory" server (direct communication with
-    # Adapter) (zmq inproc?)
     server = TCPServer(port=args.port)
 
     return Controller(server)

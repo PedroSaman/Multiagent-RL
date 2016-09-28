@@ -110,6 +110,7 @@ class AdapterAgent(object, BerkeleyGameAgent):
 
         Should be overwrited by a calculate_reward method inside a AdapterAgent
         subclass
+
         Args:
             current_score: The current score from a state.
         Raise:
@@ -139,8 +140,8 @@ class AdapterAgent(object, BerkeleyGameAgent):
             state: A state of the game.
         Returns:
             msg: A message containing agent_id, agent_positions, food_positions
-            fragile_agents, wall_positions, legal_actions, reward,
-            executed_action and test_mode.
+                fragile_agents, wall_positions, legal_actions, reward,
+                executed_action and test_mode.
         """
         agent_positions = {}
 
@@ -247,7 +248,7 @@ class PacmanAdapterAgent(AdapterAgent):
         super(PacmanAdapterAgent, self).__init__(agent_id=PACMAN_INDEX,
                                                  client=client)
 
-    """TODO:
+    """Todo:
             Is this ever used?
     """
     # def act_when_invalid(self, state):
@@ -283,8 +284,8 @@ class GhostAdapterAgent(AdapterAgent):
         self.previous_action = Directions.NORTH
         # self.actions = GHOST_ACTIONS
 
-    """TODO:
-            Is this ever used?
+    """Todo:
+        Is this ever used?
     """
     # def act_when_invalid(self, state):
     #     return random.choice(state.getLegalActions(self.agent_id))
@@ -541,6 +542,7 @@ class BehaviorLearningPacmanAgent(PacmanAgent):
         Setup the features the pacman will use, the behaviors, the explotation
         and exploration rate, initialize a QLearningWithApproximation object
         initialize behavior count and set test mode to 'False'.
+
         Args:
             agent_id: The identifier of the agent.
             ally_ids: The identifiers of all the allies.
@@ -590,6 +592,9 @@ class BehaviorLearningPacmanAgent(PacmanAgent):
         """Set the policy for the agent.
 
         Set the learning agent weights.
+
+        Args:
+            weights: ...
         """
         self.learning.set_weights(weights)
 
@@ -715,6 +720,9 @@ class BehaviorLearningGhostAgent(GhostAgent):
         """Set the policy for the agent.
 
         Set the learning agent weights.
+
+        Args:
+            weights:
         """
         self.learning.set_weights(weights)
 

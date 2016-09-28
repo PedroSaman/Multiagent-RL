@@ -44,8 +44,6 @@ def log(msg):
     print '[  Adapter ] {}'.format(msg)
 
 
-# @todo Parse arguments outside class, pass values as arguments for
-# constructor.
 class Adapter(object):
     """Some Stuff.
 
@@ -56,14 +54,17 @@ class Adapter(object):
         learn_runs: The initialized number of learning runs.
         test_runs: The initialized number of test runs.
         display: The graphics of the simulations if graphics were set to
-        'True'.
+            'True'.
         policy_file: The name of the policy_file.
         all_agents: The pacman and the ghosts agents.
         ghost_class: The initialized ghosts.
         ghosts: The identifier of all the ghosts
         pacman: Instance of PacmanAdapterAgent.
-    TODO:
-        Define pacman-agent choices and ghost-agent choices from agents.py file
+    Todo:
+        * Define pacman-agent choices and ghost-agent choices from agents.py
+            file.
+        * Parse arguments outside class, pass values as arguments for
+            constructor.
     """
 
     def __init__(self,
@@ -86,20 +87,20 @@ class Adapter(object):
 
         Args:
             pacman_agent: Pacman agent to be initialized,
-            default is 'random'.
+                default is 'random'.
             ghost_agent: Ghost agent to be initialized, default is 'ai'.
             num_ghosts: Number of ghosts to be initialized, default is 3.
             noise: Noise, default is 0.
             policy_file: Name of the file for saving or loading policies,
-            default is None.
+                default is None.
             layout: Layout of the game, default is 'Classic'.
             learn_runs: Number of learing simulations, default is 100.
             test_runs: Number of test simulations, default is 15.
-            client:
+            client: ...
             output_file: File for saving the simulations results, default
-            is 'output.txt'.
+                is 'output.txt'.
             graphics: Enable or disable the simulations graphics, default
-            is 'False'.
+                is 'False'.
         Raises:
             ValueError: Layout file missing.
             ValueError: Pac-Man agent does not exist.
@@ -260,9 +261,10 @@ class Adapter(object):
 
         Start new game, load policies to agents, update agentes rewards, log
         the behavior count and log score.
+
         Args:
-            policies:
-            results:
+            policies: ...
+            results: ...
         """
         # Start new game
         for agent in self.all_agents:
@@ -284,9 +286,9 @@ class Adapter(object):
         for agent in self.all_agents:
             agent.update(simulated_game.state)
 
-        """TODO:
-            This as one list, probably by checking if agent is
-        # instance of BehaviorLearningAgent (needs refactoring).
+        """Todo:
+            * This as one list, probably by checking if agent is
+                instance of BehaviorLearningAgent (needs refactoring).
         """
         # Log behavior count
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
@@ -323,8 +325,8 @@ class Adapter(object):
 
         Args:
             policies: The ghosts and pacman policies.
-        TODO:
-            Keep policy in agent?
+        Todo:
+            * Keep policy in agent?
         """
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
             policies[self.pacman.agent_id] = self.__get_policy__(self.pacman)
@@ -355,8 +357,9 @@ class Adapter(object):
 
         results = {'learn_scores': [], 'test_scores': [], 'behavior_count': {}}
 
-        """TODO: This as one list, probably by checking if agent is instance of
-        BehaviorLearningAgent (needs refactoring).
+        """Todo:
+            * This as one list, probably by checking if agent is instance of
+                BehaviorLearningAgent (needs refactoring).
         """
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
             results['behavior_count'][self.pacman.agent_id] = {}

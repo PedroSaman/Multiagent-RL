@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-""" """
+"""Process results for simulations and genarates plots."""
 
 from __future__ import division
 import argparse
@@ -35,21 +35,51 @@ COLOR_LIST = ['r', 'g', 'b', 'y', 'p', 'w', 'k']
 
 
 def load_results(filename):
+    """Load results.
+
+    Load results from a output file
+
+    Args:
+        filename: The name of the file.
+    Returns:
+        results: The results in the file
+    """
     with open(filename) as f:
         results = pickle.loads(f.read())
     return results
 
 
 def calculate_regression_coefficients(data, degree=4):
+    """Calculate the regression coefficients.
+
+    Args:
+        data: The data to perform the calculation.
+        degree: Degree of the fitting polynomial
+    Returns:
+        Regression coefficients.
+    """
     return np.polyfit(range(len(data)), data, degree)
 
 
 def calculate_regression_y(x, coeff):
+    """Calculate the regression.
+
+    Args:
+        coeff: The coefficients for each regression.
+    Returns:
+        Sum of array elements over a given axis.
+    """
     return np.sum([x**(len(coeff) - i - 1) *
                    coeff[i] for i in range(len(coeff))])
 
 
 def plot_scores(learn_scores, test_scores):
+    """Create a plot for the scores.
+
+    Args:
+        learn_scores: The score from the learn runs.
+        test_scores: The score from the test runs.
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.xlabel(u'Número de jogos')
@@ -70,6 +100,11 @@ def plot_scores(learn_scores, test_scores):
 
 
 def plot_game_duration(behavior_count):
+    """Create a plot for the game duration.
+
+    Args:
+        behavior_count: The count of a behavior.
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.xlabel(u'Número de jogos')
@@ -89,6 +124,12 @@ def plot_game_duration(behavior_count):
 
 
 def plot_behavior_count(agent_id, behavior_count):
+    """Create a plot for the behavior count.
+
+    Args:
+        agent_id: The identifier of the agent.
+        behavior_count: The count of the agent behaviors.
+    """
     fig = plt.figure()
     ax = fig.add_subplot(111)
     plt.xlabel(u'Número de jogos')
