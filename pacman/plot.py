@@ -1,15 +1,15 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-"""Process results for simulations and genarates plots.
+u"""Process results for simulations and genarates plots.
 
-...
 Attributes:
-    T: {'FleeBehavior': u'Fuga', 'PursueBehavior': u'Perseguição',
-        'SeekBehavior': u'Busca',}
-    COLOR_TABLE: { 'r': '#c0392b', 'g': '#16a085', 'b': '#2980b9',
-        'y': '#f39c12', 'p': '#8e44ad', 'w': '#ecf0f1', 'k': '#2c3e50',}
-    COLOR_LIST: ['r', 'g', 'b', 'y', 'p', 'w', 'k']
+    T: Dict of behaviors {'FleeBehavior': u'Fuga',
+        'PursueBehavior': u'Perseguição', 'SeekBehavior': u'Busca',}
+    COLOR_TABLE:  Dict of colors, { 'r': '#c0392b', 'g': '#16a085',
+        'b': '#2980b9', 'y': '#f39c12', 'p': '#8e44ad', 'w': '#ecf0f1',
+        'k': '#2c3e50',}
+    COLOR_LIST: List of color values, ['r', 'g', 'b', 'y', 'p', 'w', 'k'].
 """
 
 from __future__ import division

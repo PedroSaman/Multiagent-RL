@@ -3,10 +3,9 @@
 
 """Code for communication between controller and simulator.
 
-...
 Attributes:
-    DEFAULT_TCP_PORT: 5555.
-    DEFAULT_CLIENT_ADDRESS: 'localhost'.
+    DEFAULT_TCP_PORT: The server port, 5555.
+    DEFAULT_CLIENT_ADDRESS: The client address, 'localhost'.
     ACK_MSG = 'Acknowledgment'.
     ACTION_MSG = 'Action'.
     BEHAVIOR_COUNT_MSG = 'BehaviorCount'.
@@ -40,20 +39,20 @@ class ZMQMessengerBase(object):
     """Base class for simple communicating messages through zmq.
 
     Attributes:
-        socket: ...
+        socket: The socket for the communication.
     """
 
     def __init__(self, context, socket_type):
         """Constructor for ZMQMessengerBase class.
 
         Args:
-            context: ...
-            socket_type: ...
+            context: The class constrouctor of ZMQ
+            socket_type: The type of the commmunication socket.
         """
         self.socket = context.socket(socket_type)
 
     def receive(self):
-        """Requests a message and returns it.
+        """Request a message and returns it.
 
         Returns:
             The requested message.
@@ -61,7 +60,7 @@ class ZMQMessengerBase(object):
         return pickle.loads(self.socket.recv())
 
     def send(self, msg):
-        """Sends the given message.
+        """Send the given message.
 
         Args:
             msg: The given message.
@@ -78,8 +77,8 @@ class ZMQServer(ZMQMessengerBase):
         Extends the ZMQMessengerBase class.
 
         Args:
-            context: ...
-            binding: ...
+            context: The class constrouctor of ZMQ
+            binding: The TCP binding to the server.
         """
         super(ZMQServer, self).__init__(context, socket_type=zmq.REP)
         self.socket.bind(binding)
@@ -96,7 +95,12 @@ class ZMQClient(ZMQMessengerBase):
     """Inter-process communication server."""
 
     def __init__(self, context, connection):
-        """ """
+        """Constructor for the ZMQClient class.
+
+        Args:
+            context: The class constrouctor of ZMQ
+            connection: The TCP connection client server.
+        """
         super(ZMQClient, self).__init__(context, socket_type=zmq.REQ)
         self.socket.connect(connection)
         # The REQ socket sends, to the network, an empty delimiter frame in
@@ -108,7 +112,7 @@ class ZMQClient(ZMQMessengerBase):
 
 
 class TCPServer(ZMQServer):
-    """Inter-process communication client."""
+    """Inter-process communication server."""
 
     def __init__(self, address=DEFAULT_CLIENT_ADDRESS, port=DEFAULT_TCP_PORT):
         """Constructor for the TCPServer class.
@@ -116,8 +120,8 @@ class TCPServer(ZMQServer):
         Extends the ZMQServer base class constructor.
 
         Args:
-            address:
-            port:
+            address: The address of the client, DEFAULT_CLIENT_ADDRESS.
+            port: The port of the server, DEFAULT_TCP_PORT
         """
         binding = 'tcp://*:{}'.format(port)
         super(TCPServer, self).__init__(zmq.Context(), binding)
@@ -127,7 +131,14 @@ class TCPClient(ZMQClient):
     """Inter-process communication client."""
 
     def __init__(self, address=DEFAULT_CLIENT_ADDRESS, port=DEFAULT_TCP_PORT):
-        """ """
+        """Constructor for the TCPClient class.
+
+        Extends the ZMQClient base class constructor.
+
+        Args:
+            address: The address of the client, DEFAULT_CLIENT_ADDRESS.
+            port: The port of the server, DEFAULT_TCP_PORT
+        """
         connection = 'tcp://{}:{}'.format(address, port)
         super(TCPClient, self).__init__(zmq.Context(), connection)
 
@@ -150,24 +161,57 @@ STATE_MSG = 'State'
 
 
 class BaseMessage(object):
-    """Base class for Pac-Man messages."""
+    """Base class for Pac-Man messages.
+
+    Attributes:
+        __type: The message type.
+    """
+
     def __init__(self, msg_type=None):
+        """Constructor for BaseMessage.
+
+        Set the __type to the msg_type.
+
+        Args:
+            msg_type: The message type.
+        """
         self.__type = msg_type
 
     @property
     def type(self):
+        """Get the message type.
+
+        Returns:
+            __type: The message type.
+        """
         return self.__type
 
 
 class AckMessage(BaseMessage):
     """Simple acknowledgment message."""
+
     def __init__(self):
+        """Extend the BaseMessage constructor."""
         super(AckMessage, self).__init__(msg_type=ACK_MSG)
 
 
 class ActionMessage(BaseMessage):
-    """Carries the information of an agent's action."""
+    """Carries the information of an agent's action.
+
+    Attributes:
+        agent_id: The identifier of an agent.
+        action: The respective action.
+    """
+
     def __init__(self, agent_id=None, action=None):
+        """Constructor for ActionMessage class.
+
+        Extends BaseMessage constructer
+
+        Args:
+            agent_id: The identifier of an agent.
+            action: The respective action.
+        """
         super(ActionMessage, self).__init__(msg_type=ACTION_MSG)
 
         self.agent_id = agent_id
@@ -175,16 +219,42 @@ class ActionMessage(BaseMessage):
 
 
 class BehaviorCountMessage(BaseMessage):
-    """Carries the requested behavior count."""
+    """Carries the requested behavior count.
+
+    Attributes:
+        count: The behavior count.
+    """
+
     def __init__(self, count=None):
+        """Constructor for BehaviorCountMessage.
+
+        Extends BaseMessage.
+
+        Args:
+            count: The behavior count.
+        """
         super(BehaviorCountMessage, self).__init__(msg_type=BEHAVIOR_COUNT_MSG)
 
         self.count = count
 
 
 class PolicyMessage(BaseMessage):
-    """Carries the requested policy."""
+    """Carries the requested policy.
+
+    Attributes:
+        agent_id: The identifer on an agent.
+        policy: The agent's policy.
+    """
+
     def __init__(self, agent_id=None, policy=None):
+        """Constructor for PolicyMessage class.
+
+        Extends BaseMessage Constructor.
+
+        Args:
+            agent_id: The identifer of an agent.
+            policy: The agent's policy.
+        """
         super(PolicyMessage, self).__init__(msg_type=POLICY_MSG)
 
         self.agent_id = agent_id
@@ -193,13 +263,33 @@ class PolicyMessage(BaseMessage):
 
 class RequestMessage(BaseMessage):
     """Requests some information."""
+
     def __init__(self, msg_type):
+        """Constructor for RequestMessage class.
+
+        Extends BaseMessage.
+
+        Args:
+            msg_type: The type of the message.
+        """
         super(RequestMessage, self).__init__(msg_type=msg_type)
 
 
 class RequestInitializationMessage(RequestMessage):
-    """Requests that the identified agent be REQUEST_INITialized."""
+    """Requests that the identified agent be REQUEST_INITIALIZED.
+
+    Attributes:
+        agent_id: The identifer of the agent to be REQUEST_INITIALIZED.
+    """
+
     def __init__(self, agent_id=None):
+        """The constructor of RequestInitializationMessage.
+
+        Extends RequestMessage.
+
+        Args:
+            agent_id: The identifer of an agent.
+        """
         super(RequestInitializationMessage,
               self).__init__(msg_type=REQUEST_INIT_MSG)
 
@@ -207,8 +297,20 @@ class RequestInitializationMessage(RequestMessage):
 
 
 class RequestBehaviorCountMessage(RequestMessage):
-    """Requests the identified agent's RequestMessage count information."""
+    """Requests the identified agent's RequestMessage count information.
+
+    Attributes:
+        agent_id: The identifer of an agent.
+    """
+
     def __init__(self, agent_id=None):
+        """The constructor of RequestBehaviorCountMessage.
+
+        Extends RequestMessage.
+
+        Args:
+            agent_id: The identifer of an agent.
+        """
         super(RequestBehaviorCountMessage,
               self).__init__(msg_type=REQUEST_BEHAVIOR_COUNT_MSG)
 
@@ -216,8 +318,24 @@ class RequestBehaviorCountMessage(RequestMessage):
 
 
 class RequestGameStartMessage(RequestMessage):
-    """Requests that a game be started for the identified agent."""
+    """Requests that a game be started for the identified agent.
+
+    Attributes:
+        agent_id: The identifier of an agent.
+        map_width: The map width.
+        map_height: The map height.
+    """
+
     def __init__(self, agent_id=None, map_width=None, map_height=None):
+        """The constructor of RequestGameStartMessage.
+
+        Extends RequestMessage.
+
+        Args:
+            agent_id: The identifer of an agent.
+            map_width: The map width.
+            map_height: The map height.
+        """
         super(RequestGameStartMessage,
               self).__init__(msg_type=REQUEST_GAME_START_MSG)
 
@@ -227,9 +345,27 @@ class RequestGameStartMessage(RequestMessage):
 
 
 class RequestRegisterMessage(RequestMessage):
-    """Requests that the identified agent (and associated information) be
-    registered."""
+    """Requests that the identified agent be registered.
+
+    Requests that the identified (and associated information)
+    agent be registered.
+
+    Attributes:
+        agent_id: The identifer of an agent.
+        agent_team: The agent team.
+        agent_class: The agent class.
+    """
+
     def __init__(self, agent_id=None, agent_team=None, agent_class=None):
+        """The constructor of RequestRegisterMessage.
+
+        Extends RequestMessage.
+
+        Args:
+            agent_id: The identifer of an agent, default is None.
+            agent_team: The agent team, default is None.
+            agent_class: The agent class, default is None.
+        """
         super(RequestRegisterMessage,
               self).__init__(msg_type=REQUEST_REGISTER_MSG)
 
@@ -239,19 +375,57 @@ class RequestRegisterMessage(RequestMessage):
 
 
 class RequestPolicyMessage(RequestMessage):
-    """Requests the identified agent's policy."""
+    """Requests the identified agent's policy.
+
+    Attributes:
+        agent_id: The identifer of an agent.
+    """
+
     def __init__(self, agent_id=None):
+        """Constructor for RequestPolicyMessage class.
+
+        Extends RequestMessage.
+
+        Args:
+            agent_id: The identifier of an agent.
+        """
         super(RequestPolicyMessage, self).__init__(msg_type=REQUEST_POLICY_MSG)
 
         self.agent_id = agent_id
 
 
 class StateMessage(BaseMessage):
-    """Carries the information of a game state."""
+    """Carries the information of a game state.
+
+    Attributes:
+        agent_id: The identifier of the agent.
+        agent_positions: The positions of the agents.
+        food_positions: The positions of the foods.
+        fragile_agents: Whethe the agent is fragile.
+        wall_positions: The positions of the walls.
+        legal_actions: A list of legal actions.
+        reward: The expected reward.
+        executed_action: The executed action.
+        test_mode: Whether is test mode or not.
+    """
+
     def __init__(self, agent_id=None, agent_positions=None,
                  food_positions=None, fragile_agents=None, wall_positions=None,
                  legal_actions=None, reward=None, executed_action=None,
                  test_mode=None):
+        """The constructor for StateMessage Class.
+
+        Args:
+            agent_id: The identifier of the agent.
+            agent_positions: The positions of the agents.
+            food_positions: The positions of the foods.
+            fragile_agents: Whethe the agent is fragile.
+            wall_positions: The positions of the walls.
+            legal_actions: A list of legal actions.
+            reward: The expected reward.
+            executed_action: The executed action.
+            test_mode: Whether is test mode or not.
+        """
         super(StateMessage, self).__init__(msg_type=STATE_MSG)
 
         self.agent_id = agent_id

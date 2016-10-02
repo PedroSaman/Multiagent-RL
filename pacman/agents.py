@@ -3,14 +3,13 @@
 
 """Define the agents.
 
-...
 Attributes:
-    DEFAULT_NOISE: 0
-    NOISE: 0
-    GHOST_ACTIONS: [Directions.NORTH, Directions.SOUTH, Directions.EAST,
-                     Directions.WEST]
-    PACMAN_ACTIONS: GHOST_ACTIONS + [Directions.STOP]
-    PACMAN_INDEX: 0
+    DEFAULT_NOISE: The default noise, 0.
+    NOISE: The noise value, 0.
+    GHOST_ACTIONS: List of ghost actions, [Directions.NORTH, Directions.SOUTH,
+        Directions.EAST, Directions.WEST].
+    PACMAN_ACTIONS: List of pacman actions, GHOST_ACTIONS + [Directions.STOP].
+    PACMAN_INDEX: The pacman index. 0
 
 To create a new Pacman agent just follow these steps:
 

@@ -4,17 +4,16 @@
 
 Adapts Communication. between controller and the Berkeley Pac-man simulator.
 
-...
 Attributes:
-    DEFAULT_GHOST_AGENT: 'ai'
-    DEFAULT_LAYOUT: 'classic'
-    DEFAULT_NUMBER_OF_GHOSTS: 3
-    DEFAULT_NUMBER_OF_LEARNING_RUNS: 100
-    DEFAULT_NUMBER_OF_TEST_RUNS: 15
-    DEFAULT_OUTPUT_FILE: 'results.txt'
-    DEFAULT_PACMAN_AGENT: 'random'
-    NUMBER_OF_BERKELEY_GAMES: 1
-    RECORD_BERKELEY_GAMES: False
+    DEFAULT_GHOST_AGENT: The default ghost agent, 'ai'.
+    DEFAULT_LAYOUT: The default map layout, 'classic'.
+    DEFAULT_NUMBER_OF_GHOSTS: The default number of ghosts, 3.
+    DEFAULT_NUMBER_OF_LEARNING_RUNS: The default number of learning runs 100.
+    DEFAULT_NUMBER_OF_TEST_RUNS: The default number of test runs, 15.
+    DEFAULT_OUTPUT_FILE: The default output file, 'results.txt'.
+    DEFAULT_PACMAN_AGENT: The default pacman agent, 'random'.
+    NUMBER_OF_BERKELEY_GAMES: Pacman game configuration of berkeley, 1.
+    RECORD_BERKELEY_GAMES: Pacman game configuration of berkeley, False.
 """
 
 import pickle
