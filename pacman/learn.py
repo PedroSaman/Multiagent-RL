@@ -537,7 +537,7 @@ class WindyWaterAdapter(ProblemAdapter):
         goal_coordinates: The coordinates of the goal, [1, 7].
         water_coordinates: The coordinates of the water tiles.
             [[0, 3], [0, 4], [2, 3], [2, 4], [3, 3], [3, 4]]
-        wind_frequency: ...
+        wind_frequency: The frequency of the wind(noise).
     """
 
     def __init__(self, wind_frequency=0):
@@ -546,7 +546,7 @@ class WindyWaterAdapter(ProblemAdapter):
         Extent the ProblemAdapter class.
 
         Args:
-            wind_frequency: ... , default is 0.
+            wind_frequency: The frequency of the wind(noise) , default is 0.
         """
         self.initial_coordinates = [1, 0]
         self.actions = [[0, 1], [-1, 0], [0, -1], [1, 0]]

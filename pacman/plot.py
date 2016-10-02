@@ -112,8 +112,8 @@ def plot_game_duration(behavior_count):
     plt.title(u'Duração dos jogos')
     plt.xlim([0, 115])
 
-    data = np.sum(np.array([np.array(b) for b in
-                            behavior_count.values()[0].values()]), axis=0)
+    data = np.sum(np.array(
+        [np.array(b) for b in behavior_count.values()[0].values()]), axis=0)
 
     coeff = calculate_regression_coefficients(data, degree=1)
     regression = [calculate_regression_y(x, coeff) for x in range(len(data))]

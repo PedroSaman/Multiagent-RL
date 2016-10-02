@@ -1,7 +1,22 @@
 #!/usr/bin/env python
 #  -*- coding: utf-8 -*-
 
-"""Code for communication between controller and simulator."""
+"""Code for communication between controller and simulator.
+
+Attributes:
+    DEFAULT_TCP_PORT: 5555.
+    DEFAULT_CLIENT_ADDRESS: 'localhost'.
+    ACK_MSG = 'Acknowledgment'.
+    ACTION_MSG = 'Action'.
+    BEHAVIOR_COUNT_MSG = 'BehaviorCount'.
+    POLICY_MSG = 'Policy'.
+    REQUEST_REGISTER_MSG = 'RequestRegister'.
+    REQUEST_BEHAVIOR_COUNT_MSG = 'RequestBehaviorCount'.
+    REQUEST_GAME_START_MSG = 'RequestGameStart'.
+    REQUEST_INIT_MSG = 'RequestInitialization'.
+    REQUEST_POLICY_MSG = 'RequestPolicy'.
+    STATE_MSG = 'State'.
+"""
 
 import pickle
 import zmq
@@ -12,7 +27,7 @@ __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
 __maintainer__ = "Guilherme N. Ramos"
 __email__ = "gnramos@unb.br"
 
-""" Default settings """
+# Default settings.
 DEFAULT_CLIENT_ADDRESS = 'localhost'
 DEFAULT_TCP_PORT = 5555
 
@@ -21,22 +36,50 @@ DEFAULT_TCP_PORT = 5555
 #                                Messengers                                   #
 ###############################################################################
 class ZMQMessengerBase(object):
-    """Base class for simple communicating messages through zmq."""
+    """Base class for simple communicating messages through zmq.
+
+    Attributes:
+        socket: ...
+    """
+
     def __init__(self, context, socket_type):
+        """Constructor for ZMQMessengerBase class.
+
+        Args:
+            context: ...
+            socket_type: ...
+        """
         self.socket = context.socket(socket_type)
 
     def receive(self):
-        """Requests a message and returns it."""
+        """Requests a message and returns it.
+
+        Returns:
+            The requested message.
+        """
         return pickle.loads(self.socket.recv())
 
     def send(self, msg):
-        """Sends the given message."""
+        """Sends the given message.
+
+        Args:
+            msg: The given message.
+        """
         self.socket.send(pickle.dumps(msg))
 
 
 class ZMQServer(ZMQMessengerBase):
     """Inter-process communication server."""
+
     def __init__(self, context, binding):
+        """Constructor for the ZMQServer class.
+
+        Extends the ZMQMessengerBase class.
+
+        Args:
+            context: ...
+            binding: ...
+        """
         super(ZMQServer, self).__init__(context, socket_type=zmq.REP)
         self.socket.bind(binding)
         # http://zguide.zeromq.org/page:all#advanced-request-reply
@@ -50,7 +93,9 @@ class ZMQServer(ZMQMessengerBase):
 
 class ZMQClient(ZMQMessengerBase):
     """Inter-process communication server."""
+
     def __init__(self, context, connection):
+        """ """
         super(ZMQClient, self).__init__(context, socket_type=zmq.REQ)
         self.socket.connect(connection)
         # The REQ socket sends, to the network, an empty delimiter frame in
@@ -63,14 +108,25 @@ class ZMQClient(ZMQMessengerBase):
 
 class TCPServer(ZMQServer):
     """Inter-process communication client."""
+
     def __init__(self, address=DEFAULT_CLIENT_ADDRESS, port=DEFAULT_TCP_PORT):
+        """Constructor for the TCPServer class.
+
+        Extends the ZMQServer base class constructor.
+
+        Args:
+            address:
+            port:
+        """
         binding = 'tcp://*:{}'.format(port)
         super(TCPServer, self).__init__(zmq.Context(), binding)
 
 
 class TCPClient(ZMQClient):
     """Inter-process communication client."""
+
     def __init__(self, address=DEFAULT_CLIENT_ADDRESS, port=DEFAULT_TCP_PORT):
+        """ """
         connection = 'tcp://{}:{}'.format(address, port)
         super(TCPClient, self).__init__(zmq.Context(), connection)
 

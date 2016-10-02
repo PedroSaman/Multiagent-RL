@@ -594,7 +594,7 @@ class BehaviorLearningPacmanAgent(PacmanAgent):
         Set the learning agent weights.
 
         Args:
-            weights: ...
+            weights: The weights of a feature.
         """
         self.learning.set_weights(weights)
 

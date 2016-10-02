@@ -81,7 +81,10 @@ class FoodDistanceFeature(Feature):
 
 
 class FragileAgentFeature(Feature):
-    """Get the Fragile Agente for an agent identifier."""
+    """Get the Fragile Agente for an agent identifier.
+
+    A fragile agent is the when a pacman eat a pill and might be on danger.
+    """
 
     def __init__(self, agent_id):
         """Constructor method for the FragileAgentFeature Class.

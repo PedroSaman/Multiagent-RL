@@ -240,8 +240,8 @@ class QLearningWithApproximation(LearningAlgorithm):
         actions: A list of action to action-state pair. It might be a list of
             behaviors, if using behaviors-states pairs.
         features: A list of features.
-        exploration_rate: ...
-        weights: ...
+        exploration_rate: The rate the agent will explore.
+        weights: The weights of an feature.
         previous_state: State in which the algorithm currently is.
         learning_rate: Value in [0, 1] interval that determines how much of the
             new information overrides the previous value. Deterministic

@@ -96,7 +96,7 @@ class Adapter(object):
             layout: Layout of the game, default is 'Classic'.
             learn_runs: Number of learing simulations, default is 100.
             test_runs: Number of test simulations, default is 15.
-            client: ...
+            client: Client address to connect to adapter
             output_file: File for saving the simulations results, default
                 is 'output.txt'.
             graphics: Enable or disable the simulations graphics, default
@@ -263,8 +263,8 @@ class Adapter(object):
         the behavior count and log score.
 
         Args:
-            policies: ...
-            results: ...
+            policies: The policies to be loaded.
+            results: The results to be logged.
         """
         # Start new game
         for agent in self.all_agents:
