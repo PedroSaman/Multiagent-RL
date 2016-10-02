@@ -3,6 +3,15 @@
 
 """Define the agents.
 
+...
+Attributes:
+    DEFAULT_NOISE: 0
+    NOISE: 0
+    GHOST_ACTIONS: [Directions.NORTH, Directions.SOUTH, Directions.EAST,
+                     Directions.WEST]
+    PACMAN_ACTIONS: GHOST_ACTIONS + [Directions.STOP]
+    PACMAN_INDEX: 0
+
 To create a new Pacman agent just follow these steps:
 
     1) First create your new Pacman class and define your choose_action

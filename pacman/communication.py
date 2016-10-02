@@ -3,6 +3,7 @@
 
 """Code for communication between controller and simulator.
 
+...
 Attributes:
     DEFAULT_TCP_PORT: 5555.
     DEFAULT_CLIENT_ADDRESS: 'localhost'.
