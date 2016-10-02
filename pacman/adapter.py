@@ -12,8 +12,8 @@ Attributes:
     DEFAULT_NUMBER_OF_TEST_RUNS: The default number of test runs, 15.
     DEFAULT_OUTPUT_FILE: The default output file, 'results.txt'.
     DEFAULT_PACMAN_AGENT: The default pacman agent, 'random'.
-    NUMBER_OF_BERKELEY_GAMES: Pacman game configuration of berkeley, 1.
-    RECORD_BERKELEY_GAMES: Pacman game configuration of berkeley, False.
+    NUMBER_OF_BERKELEY_GAMES: Pacman game configuration of Berkeley, 1.
+    RECORD_BERKELEY_GAMES: Pacman game configuration of Berkeley, False.
 """
 
 import pickle
