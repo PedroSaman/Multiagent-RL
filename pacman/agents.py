@@ -43,6 +43,7 @@ from berkeley.game import Agent as BerkeleyGameAgent, Directions
 import behaviors
 import features
 import learning
+import Queue
 
 from communication import (ZMQMessengerBase, RequestGameStartMessage,
                            StateMessage)
@@ -461,7 +462,50 @@ class RandomPacmanAgentTwo(PacmanAgent):
             else:
                 return action
 
-
+class BFS_PacmanAgent(PacmanAgent):
+    """Agent that search for the shortest food using BFS algorithm"""
+    def choose_action(self, state, action, reward, legal_actions, explore):
+        
+        q = Queue.Queue()
+        visited = []
+        
+        Initial_Position = state.get_position()
+        new_position = Initial_Position
+        
+        food_map = state.food_map
+        
+        agent_map = state.get_map()
+        
+        q.put(Initial_Position)
+        visited.append(Initial_Position)
+        
+        closest_food = None
+        
+        while (not q.empty()):
+            Current_Position = q.get()
+            for i in range(-1,2):
+                for j in range(-1,2):
+                    new_position = (Current_Position[0]+i,Current_Position[1]+j)
+                    if(agent_map._is_valid_position(new_position) and (new_position not in visited)):
+                        q.put(new_position)
+                        visited.append(new_position)
+                    if(food_map[new_position[0]][new_position[1]] == 1):
+                        closest_food = new_position
+                        break
+        
+        best_action = None
+        min_dist = None
+        
+        if closest_food == None:
+            return 'Stop'
+        
+        for action in legal_actions:
+            new_dist = state.calculate_distance(Initial_Position, closest_food)
+            if new_dist < min_dist:
+                min_dist = new_dist
+                best_action = action
+        return best_action
+            
 class RandomGhostAgent(GhostAgent):
     """GhostAgent that randomly selects an action."""
 
