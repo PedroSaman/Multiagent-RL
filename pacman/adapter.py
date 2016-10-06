@@ -138,9 +138,11 @@ class Adapter(object):
             self.pacman_class = agents.BehaviorLearningPacmanAgent
         elif pacman_agent == 'eater':
             self.pacman_class = agents.EaterPacmanAgent
+        elif pacman_agent == 'BFS':
+            self.pacman_class = agents.BFS_PacmanAgent
         else:
             raise ValueError
-            ('Pac-Man agent must be ai, random, random2 or eater.')
+            ('Pac-Man agent must be ai, random, random2, eater or BFS.')
 
         self.pacman = agents.PacmanAdapterAgent(client=client)
         log('Created {} #{}.'.format(self.pacman_class.__name__,
