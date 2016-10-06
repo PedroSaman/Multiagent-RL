@@ -489,22 +489,21 @@ class BFS_PacmanAgent(PacmanAgent):
                     if(agent_map._is_valid_position(new_position) and (new_position not in visited)):
                         q.put(new_position)
                         visited.append(new_position)
-                    if(food_map[new_position[0]][new_position[1]] == 1):
+                    if(food_map[new_position[0]][new_position[1]] == 1 and closest_food == None):
                         closest_food = new_position
-                        break
         
         best_action = None
         min_dist = None
         
         if closest_food == None:
             return 'Stop'
-        
-        for action in legal_actions:
-            new_dist = state.calculate_distance(Initial_Position, closest_food)
-            if new_dist < min_dist:
-                min_dist = new_dist
-                best_action = action
-        return best_action
+        if len(legal_actions>0):
+            for action in legal_actions:
+                new_dist = state.calculate_distance(Initial_Position, closest_food)
+                if new_dist < min_dist:
+                    min_dist = new_dist
+                    best_action = action
+            return best_action
             
 class RandomGhostAgent(GhostAgent):
     """GhostAgent that randomly selects an action."""
