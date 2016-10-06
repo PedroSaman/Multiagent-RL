@@ -260,8 +260,15 @@ class PacmanAdapterAgent(AdapterAgent):
     """Todo:
             Is this ever used?
     """
-    # def act_when_invalid(self, state):
-    #     return Directions.STOP
+    def act_when_invalid(self, state):
+        """Action when there are no other valid actions.
+
+        Args:
+            state: The current state.
+        Returns:
+            Directions.STOP: The pacman stand still.
+        """
+        return Directions.STOP
 
     def calculate_reward(self, current_score):
         """Calculate the reward.
@@ -462,49 +469,56 @@ class RandomPacmanAgentTwo(PacmanAgent):
             else:
                 return action
 
+
 class BFS_PacmanAgent(PacmanAgent):
-    """Agent that search for the shortest food using BFS algorithm"""
+    """Agent that search for the shortest food using BFS algorithm."""
+
     def choose_action(self, state, action, reward, legal_actions, explore):
-        
+
         q = Queue.Queue()
         visited = []
-        
+
         Initial_Position = state.get_position()
         new_position = Initial_Position
-        
+
         food_map = state.food_map
-        
+
         agent_map = state.get_map()
-        
+
         q.put(Initial_Position)
         visited.append(Initial_Position)
-        
+
         closest_food = None
-        
         while (not q.empty()):
             Current_Position = q.get()
-            for i in range(-1,2):
-                for j in range(-1,2):
-                    new_position = (Current_Position[0]+i,Current_Position[1]+j)
-                    if(agent_map._is_valid_position(new_position) and (new_position not in visited)):
+            for i in range(-1, 2):
+                for j in range(-1, 2):
+                    new_position = (Current_Position[0]+i,
+                                    Current_Position[1]+j)
+                    if(agent_map._is_valid_position(new_position) and
+                       (new_position not in visited)):
                         q.put(new_position)
                         visited.append(new_position)
-                    if(food_map[new_position[0]][new_position[1]] == 1 and closest_food == None):
+                    if(food_map[new_position[0]][new_position[1]] == 1 and
+                       closest_food is None):
                         closest_food = new_position
-        
         best_action = None
         min_dist = None
-        
-        if closest_food == None:
-            return 'Stop'
-        if len(legal_actions>0):
+
+        if closest_food is None:
+            return Directions.STOP
+        if len(legal_actions) > 0:
             for action in legal_actions:
-                new_dist = state.calculate_distance(Initial_Position, closest_food)
+                new_dist = state.calculate_distance(Initial_Position,
+                                                    closest_food)
                 if new_dist < min_dist:
                     min_dist = new_dist
                     best_action = action
             return best_action
-            
+        else:
+            return Directions.STOP
+
+
 class RandomGhostAgent(GhostAgent):
     """GhostAgent that randomly selects an action."""
 
