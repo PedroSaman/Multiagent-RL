@@ -475,35 +475,43 @@ class BFS_PacmanAgent(PacmanAgent):
 
     def choose_action(self, state, action, reward, legal_actions, explore):
 
-        q = Queue.Queue()
+        queue = Queue.Queue()
         visited = []
 
-        Initial_Position = state.get_position()
+        initial_position = state.get_position()
         
         food_map = state.food_map
 
+        print food_map
+
         agent_map = state.get_map()
 
-        q.put(Initial_Position)
-        visited.append(Initial_Position)
+        queue.put(initial_position)
+        visited.append(initial_position)
 
         closest_food = None
-        while (not q.empty()):
+        while (not queue.empty()):
+            
+            current_edge = queue.get()
+            (i,j) = current_edge            
+            
+            if food_map[i][j] == 1.0:
+                closest_food = current_edge
+
             if(closest_food is not None):
                 break
-            Current_Position = q.get()
+            
             for y in range(-1,2):
                 for x in range(-1,2,2):
                     if(y == 1 or y == -1):
                         x=0
-                    new_position = (Current_Position[0]+y,
-                                    Current_Position[1]+x)
-                    if(agent_map._is_valid_position(new_position) and
-                                        (new_position not in visited)):
-                        q.put(new_position)
-                        visited.append(new_position)
-                        if(food_map[new_position[0]][new_position[1]] == True and closest_food is None):
-                            closest_food = new_position
+                    
+                    new_edge = (current_edge[0]+x, current_edge[1]+y)
+                    
+                    if(agent_map._is_valid_position(new_edge)):
+                        if(new_edge not in visited):
+                            queue.put(new_edge)
+                            visited.append(new_edge)
 
         if closest_food is None:
             return Directions.STOP
@@ -513,9 +521,9 @@ class BFS_PacmanAgent(PacmanAgent):
 
         for action in legal_actions:
             diff = agent_map.action_to_pos[action]
-            new_position = (Initial_Position[0] + diff[0],
-                            Initial_Position[1] + diff[1])
-            new_dist = state.calculate_distance(new_position,
+            new_edge = (initial_position[0] + diff[0],
+                            initial_position[1] + diff[1])
+            new_dist = state.calculate_distance(new_edge,
                                                 closest_food)
             if new_dist < min_dist:
                 min_dist = new_dist
