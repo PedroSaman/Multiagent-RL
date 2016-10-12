@@ -502,7 +502,7 @@ class BFS_PacmanAgent(PacmanAgent):
                                         (new_position not in visited)):
                         q.put(new_position)
                         visited.append(new_position)
-                        if(food_map[new_position[0]][new_position[1]] == True):
+                        if(food_map[new_position[0]][new_position[1]] == True and closest_food is None):
                             closest_food = new_position
 
         if closest_food is None:
