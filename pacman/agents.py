@@ -479,8 +479,7 @@ class BFS_PacmanAgent(PacmanAgent):
         visited = []
 
         Initial_Position = state.get_position()
-        new_position = Initial_Position
-
+        
         food_map = state.food_map
 
         agent_map = state.get_map()
@@ -490,33 +489,38 @@ class BFS_PacmanAgent(PacmanAgent):
 
         closest_food = None
         while (not q.empty()):
+            if(closest_food is not None):
+                break
             Current_Position = q.get()
-            for i in range(-1, 2):
-                for j in range(-1, 2):
-                    new_position = (Current_Position[0]+i,
-                                    Current_Position[1]+j)
+            for y in range(-1,2):
+                for x in range(-1,2,2):
+                    if(y == 1 or y == -1):
+                        x=0
+                    new_position = (Current_Position[0]+y,
+                                    Current_Position[1]+x)
                     if(agent_map._is_valid_position(new_position) and
-                       (new_position not in visited)):
+                                        (new_position not in visited)):
                         q.put(new_position)
                         visited.append(new_position)
-                    if(food_map[new_position[0]][new_position[1]] == 1 and
-                       closest_food is None):
-                        closest_food = new_position
-        best_action = None
-        min_dist = None
+                        if(food_map[new_position[0]][new_position[1]] == True):
+                            closest_food = new_position
 
         if closest_food is None:
             return Directions.STOP
-        if len(legal_actions) > 0:
-            for action in legal_actions:
-                new_dist = state.calculate_distance(Initial_Position,
-                                                    closest_food)
-                if new_dist < min_dist:
-                    min_dist = new_dist
-                    best_action = action
-            return best_action
-        else:
-            return Directions.STOP
+
+        best_action = None
+        min_dist = float('inf')
+
+        for action in legal_actions:
+            diff = agent_map.action_to_pos[action]
+            new_position = (Initial_Position[0] + diff[0],
+                            Initial_Position[1] + diff[1])
+            new_dist = state.calculate_distance(new_position,
+                                                closest_food)
+            if new_dist < min_dist:
+                min_dist = new_dist
+                best_action = action
+        return best_action
 
 
 class RandomGhostAgent(GhostAgent):
