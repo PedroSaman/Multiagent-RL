@@ -225,6 +225,10 @@ class Adapter(object):
         reply_msg = agent.communicate(msg)
         return reply_msg.policy
 
+    def __get_agents_gamemap(self, agent):
+        msg = comm.RequestAgentMapMessage(agent.agent_id)
+        reply_msg = 
+
     def __load_policy__(self, agent, policy):
         """Pass the policy message of the agent id.
 

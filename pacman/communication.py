@@ -274,7 +274,6 @@ class RequestMessage(BaseMessage):
         """
         super(RequestMessage, self).__init__(msg_type=msg_type)
 
-
 class RequestInitializationMessage(RequestMessage):
     """Requests that the identified agent be REQUEST_INITIALIZED.
 
