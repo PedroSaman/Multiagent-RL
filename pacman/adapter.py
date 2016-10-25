@@ -14,6 +14,7 @@ Attributes:
     DEFAULT_PACMAN_AGENT: The default pacman agent, 'random'.
     NUMBER_OF_BERKELEY_GAMES: Pacman game configuration of Berkeley, 1.
     RECORD_BERKELEY_GAMES: Pacman game configuration of Berkeley, False.
+    DEFAULT_COMM: Type of communication, default is none.
 """
 
 import pickle
@@ -44,6 +45,7 @@ DEFAULT_NUMBER_OF_LEARNING_RUNS = 100
 DEFAULT_NUMBER_OF_TEST_RUNS = 15
 DEFAULT_OUTPUT_FILE = 'results.txt'
 DEFAULT_PACMAN_AGENT = 'random'
+DEFAULT_COMM = 'none'
 
 # Pac-Man game configuration
 NUMBER_OF_BERKELEY_GAMES = 1
@@ -89,7 +91,8 @@ class Adapter(object):
                  test_runs=DEFAULT_NUMBER_OF_TEST_RUNS,
                  client=None,
                  output_file=DEFAULT_OUTPUT_FILE,
-                 graphics=False):
+                 graphics=False,
+                 comm=DEFAULT_COMM):
         """Constructor for the Adapter class.
 
         Setup the layout, the pacman agent, the ghosts agents, the policy file,
@@ -148,6 +151,24 @@ class Adapter(object):
         log('Created {} #{}.'.format(self.pacman_class.__name__,
                                      self.pacman.agent_id))
         self.__register_agent__(self.pacman, 'pacman', self.pacman_class)
+
+        # Setup Communication
+
+        if comm == 'pm':
+            print('Soon')
+            self.comm = 'pm'
+        elif comm == 'state':
+            print('Soon2')
+            self.comm = 'state'
+        elif comm == 'both':
+            print('Soon3')
+            self.comm = 'both'
+        elif comm == 'none':
+            self.comm = 'none'
+            print('Ayy')
+        else:
+            raise ValueError
+            ('Communication type must be none, pm, state or both')
 
         # Setup Ghost agents
         self.num_ghosts = int(num_ghosts)
@@ -224,10 +245,6 @@ class Adapter(object):
         msg = comm.RequestPolicyMessage(agent.agent_id)
         reply_msg = agent.communicate(msg)
         return reply_msg.policy
-
-    def __get_agents_gamemap(self, agent):
-        msg = comm.RequestAgentMapMessage(agent.agent_id)
-        reply_msg = 
 
     def __load_policy__(self, agent, policy):
         """Pass the policy message of the agent id.

@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from adapter import (Adapter, DEFAULT_GHOST_AGENT, DEFAULT_LAYOUT,
                      DEFAULT_NUMBER_OF_GHOSTS, DEFAULT_NUMBER_OF_LEARNING_RUNS,
                      DEFAULT_NUMBER_OF_TEST_RUNS, DEFAULT_OUTPUT_FILE,
-                     DEFAULT_PACMAN_AGENT)
+                     DEFAULT_PACMAN_AGENT, DEFAULT_COMM)
 from agents import DEFAULT_NOISE
 from controller import Controller
 from communication import (TCPClient, TCPServer, DEFAULT_CLIENT_ADDRESS,
@@ -71,6 +71,10 @@ def get_Adapter():
                        help='number of games to test learned policy')
 
     group = parser.add_argument_group('Communication')
+    group.add_argument('--comm', dest='comm', type=str,
+                       choices=['none', 'pm', 'state', 'both'],
+                       default=DEFAULT_COMM,
+                       help='Type of communication the agents will do')
     group.add_argument('--addr', dest='address', type=str,
                        default=DEFAULT_CLIENT_ADDRESS,
                        help='Client address to connect to adapter (TCP '
@@ -93,7 +97,8 @@ def get_Adapter():
                       test_runs=args.test_runs,
                       client=client,
                       output_file=args.output_file,
-                      graphics=args.graphics)
+                      graphics=args.graphics,
+                      comm=args.comm)
 
     return adapter
 
