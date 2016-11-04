@@ -87,6 +87,8 @@ def get_Adapter():
 
     client = TCPClient(args.address, args.port)
 
+    print(args)
+
     adapter = Adapter(pacman_agent=args.pacman_agent,
                       ghost_agent=args.ghost_agent,
                       num_ghosts=args.num_ghosts,

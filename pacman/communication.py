@@ -152,10 +152,12 @@ ACK_MSG = 'Acknowledgment'
 ACTION_MSG = 'Action'
 BEHAVIOR_COUNT_MSG = 'BehaviorCount'
 POLICY_MSG = 'Policy'
+PROBABILITY_MAP_MSG = 'ProbabilityMap'
 REQUEST_REGISTER_MSG = 'RequestRegister'
 REQUEST_BEHAVIOR_COUNT_MSG = 'RequestBehaviorCount'
 REQUEST_GAME_START_MSG = 'RequestGameStart'
 REQUEST_INIT_MSG = 'RequestInitialization'
+REQUEST_PM_MSG = 'RequestProbabilityMap'
 REQUEST_POLICY_MSG = 'RequestPolicy'
 STATE_MSG = 'State'
 
@@ -260,6 +262,17 @@ class PolicyMessage(BaseMessage):
         self.agent_id = agent_id
         self.policy = policy
 
+
+class ProbabilityMapMessage(BaseMessage):
+    """ """
+
+    def __init__(self, agent_id=None, probability_map=None):
+
+        super(ProbabilityMapMessage,
+              self).__init__(msg_type=PROBABILITY_MAP_MSG)
+
+        self.agent_id = agent_id
+        self.pm = probability_map
 
 class RequestMessage(BaseMessage):
     """Requests some information."""
@@ -389,6 +402,20 @@ class RequestPolicyMessage(RequestMessage):
             agent_id: The identifier of an agent.
         """
         super(RequestPolicyMessage, self).__init__(msg_type=REQUEST_POLICY_MSG)
+
+        self.agent_id = agent_id
+
+
+class RequestProbabilityMapMessage(RequestMessage):
+    """Request the probability map.
+
+    Attributes:
+        agent_id: The identifier of an agent
+    """
+
+    def __init__(self, agent_id=None):
+        super(RequestProbabilityMapMessage,
+              self).__init__(msg_type=REQUEST_PM_MSG)
 
         self.agent_id = agent_id
 

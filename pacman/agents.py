@@ -136,6 +136,7 @@ class AdapterAgent(object, BerkeleyGameAgent):
             A message requested to ZMQMessengerBase.
         """
         self.client.send(msg)
+        print msg
         return self.client.receive()
 
     def create_state_message(self, state):

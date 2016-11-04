@@ -151,24 +151,24 @@ class Adapter(object):
         log('Created {} #{}.'.format(self.pacman_class.__name__,
                                      self.pacman.agent_id))
         self.__register_agent__(self.pacman, 'pacman', self.pacman_class)
-
+        self.client = client
         # Setup Communication
 
         if comm == 'pm':
-            print('Soon')
             self.comm = 'pm'
         elif comm == 'state':
-            print('Soon2')
             self.comm = 'state'
         elif comm == 'both':
-            print('Soon3')
             self.comm = 'both'
         elif comm == 'none':
             self.comm = 'none'
-            print('Ayy')
         else:
             raise ValueError
             ('Communication type must be none, pm, state or both')
+
+        log('Communication defined to {}'.format(self.comm))
+
+        print comm
 
         # Setup Ghost agents
         self.num_ghosts = int(num_ghosts)
@@ -246,6 +246,18 @@ class Adapter(object):
         reply_msg = agent.communicate(msg)
         return reply_msg.policy
 
+    def __get_probability_map__(self, agent):
+        """Request the agent probability map.
+
+        Args:
+            agent: The agent to get the map.
+        """
+        msg = comm.RequestProbabilityMapMessage(agent.agent_id)
+        reply_msg = agent.communicate(msg)
+        return reply_msg.pm
+
+
+
     def __load_policy__(self, agent, policy):
         """Pass the policy message of the agent id.
 
@@ -257,6 +269,11 @@ class Adapter(object):
         """
         msg = comm.PolicyMessage(agent_id=agent.agent_id, policy=policy)
         return agent.communicate(msg)
+
+    def __load_probabilities_maps__(self, agent, pm):
+        msg = comm.ProbabilityMapMessage(agent_id=agent, probability_map=pm)
+        self.client.send(msg)
+        return self.client.receive()
 
     def __load_policies_from_file__(self, filename):
         """Load policies from file.
@@ -311,6 +328,23 @@ class Adapter(object):
                     self.__load_policy__(agent, policies[agent.agent_id])
 
         log('Simulating game...')
+        print'foi'
+        if self.comm == 'pm':
+            print 'foi2'
+            probability_maps = []
+
+            for ghost in self.ghosts:
+                print self.__get_probability_map__(ghost)
+                print ghost.agent_id
+                probability_maps.append(self.__get_probability_map__(ghost))
+
+            self.__load_probabilities_maps__(agent=None, pm=probability_maps)
+
+            print probability_maps
+        elif self.comm == 'state':
+            print 'Soon'
+        elif self.comm == 'both':
+            print 'Soon'
         simulated_game = run_berkeley_games(self.layout, self.pacman,
                                             self.ghosts, self.display,
                                             NUMBER_OF_BERKELEY_GAMES,
@@ -395,6 +429,7 @@ class Adapter(object):
             * This as one list, probably by checking if agent is instance of
                 BehaviorLearningAgent (needs refactoring).
         """
+        #Initialize Results
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
             results['behavior_count'][self.pacman.agent_id] = {}
 

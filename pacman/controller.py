@@ -7,7 +7,7 @@ from __future__ import division
 
 import cliparser
 import communication as comm
-from state import GameState
+from state import GameState, Map
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -252,6 +252,39 @@ class Controller(object):
         log('Start game for {} #{}'.format(self.agent_teams[msg.agent_id],
                                            msg.agent_id))
 
+    def __request_probability_map__(self, msg):
+        probability_map = self.game_states[msg.agent_id].agent_maps[msg.agent_id]
+        reply_msg = comm.ProbabilityMapMessage(agent_id=msg.agent_id,
+                                               probability_map=probability_map)
+        self.server.send(reply_msg)
+
+    def __set_agent_pm__(self, msg):
+
+        width = msg.pm[0].width
+        height = msg.pm[0].height
+        sumOfValues = 0.0
+        newPM = [[0 for x in range(width)] for y in range(height)]
+
+        #Populate new matrix
+        for x in range(height):
+            for y in range(width):
+                for probMap in msg.pm:
+                    newPM[x][y] = newPM[x][y] + probMap[x][y]
+                sumOfValues = sumOfValues + newPM[x][y]
+        #Normalize it
+        for x in range(height):
+            for y in range(width):
+                newPM[x][y] = newPM[x][y]/sumOfValues
+
+
+        
+        self.server.send(comm.AckMessage())
+
+        print newPM
+
+        """Vai chamar a load probability maps, calcular, normalizar e distrubir"""
+        print('ayyy')
+
     def __process__(self, msg):
         """Process the message type.
 
@@ -275,6 +308,10 @@ class Controller(object):
             self.__send_policy_request__(msg)
         elif msg.type == comm.POLICY_MSG:
             self.__set_agent_policy__(msg)
+        elif msg.type == comm.PROBABILITY_MAP_MSG:
+            self.__set_agent_pm__(msg)
+        elif msg.type == comm.REQUEST_PM_MSG:
+            self.__request_probability_map__(msg)
 
     def run(self):
         """Run the Controller.
