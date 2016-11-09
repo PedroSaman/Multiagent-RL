@@ -572,6 +572,74 @@ class RandomGhostAgent(GhostAgent):
             return random.choice(legal_actions)
 
 
+class ReflexPacManAgent(PacmanAgent):
+    def __init__(self, agent_id, ally_ids, enemy_ids):
+        """Extend the constructor from the PacmanAgent superclass.
+        Args:
+            agent_id: The identifier of an agent.
+            ally_ids: The identifier of all allies agents.
+            enemy_ids: The identifier of all enemies agents.
+        """
+        super(ReflexPacManAgent, self).__init__(agent_id, ally_ids, enemy_ids)
+        self.eat_behavior = behaviors.EatBehavior()
+
+    def choose_action(self, state, action, reward, legal_actions, test):
+        """Choose a suggested action.
+
+        Choose an action that if theres no enemies in a distance of at least 5 will lead him to the closest food, otherwise
+        it will choose an action that lead him as far as possible from all the enemies.
+
+        Args:
+            state: Current game state.
+            action: Last executed action.
+            reward: Reward for the previous action.
+            legal_actions: List of currently allowed actions.
+            explore: Boolean whether agent is allowed to explore.
+        Returns:
+            Suggested Action.
+        """
+        agent_map = state.get_map()
+        (x,y) = state.get_position()
+
+        nearby_enemies = []
+        enemies_locations = []
+
+        for p in state.enemy_ids:
+            q = state.get_agent_position(p)
+            enemies_locations.append(q)
+            if state.get_fragile_agent(p):
+                FragileFlag = True
+            else: 
+                FragileFlag = False
+
+        for enemy_position in enemies_locations:
+            distance = state.calculate_distance((x,y),enemy_position)
+            if distance < 5:
+                nearby_enemies.append(enemy_position)  
+
+        if len(nearby_enemies) == 0 or FragileFlag is True:
+            suggested_action = self.eat_behavior(state, legal_actions)
+            if suggested_action in legal_actions:
+                return suggested_action
+            elif legal_actions == []:
+                return Directions.STOP
+            else:
+                return random.choice(legal_actions)
+        elif FragileFlag is not True and len(nearby_enemies) != 0:
+            max_distance = (-1)*float('inf')
+            best_action = None
+            for actions in legal_actions:
+                new_distance = 0
+                for enemie in nearby_enemies:
+                    diff = agent_map.action_to_pos[actions]
+                    new_position = (diff[0]+x, diff[1]+y)
+                    new_distance += state.calculate_distance(new_position,enemie)
+                if new_distance > max_distance:
+                    max_distance = new_distance
+                    best_action = actions
+            return best_action
+        
+
 class EaterPacmanAgent(PacmanAgent):
     """Greedy Pacman Agent.
 
