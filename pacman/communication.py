@@ -219,7 +219,6 @@ class ActionMessage(BaseMessage):
         self.agent_id = agent_id
         self.action = action
 
-
 class BehaviorCountMessage(BaseMessage):
     """Carries the requested behavior count.
 

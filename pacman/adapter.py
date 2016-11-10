@@ -168,7 +168,7 @@ class Adapter(object):
 
         log('Communication defined to {}'.format(self.comm))
 
-        print comm
+        # print comm
 
         # Setup Ghost agents
         self.num_ghosts = int(num_ghosts)
@@ -185,7 +185,7 @@ class Adapter(object):
         ghost_name = self.ghost_class.__name__
         self.ghosts = []
         for x in xrange(num_ghosts):
-            ghost = agents.GhostAdapterAgent(x + 1, client=client)
+            ghost = agents.GhostAdapterAgent(x + 1, client=client, comm=self.comm)
             log('Created {} #{}.'.format(ghost_name, ghost.agent_id))
             self.__register_agent__(ghost, 'ghost', self.ghost_class)
             self.ghosts.append(ghost)
@@ -246,18 +246,6 @@ class Adapter(object):
         reply_msg = agent.communicate(msg)
         return reply_msg.policy
 
-    def __get_probability_map__(self, agent):
-        """Request the agent probability map.
-
-        Args:
-            agent: The agent to get the map.
-        """
-        msg = comm.RequestProbabilityMapMessage(agent.agent_id)
-        reply_msg = agent.communicate(msg)
-        return reply_msg.pm
-
-
-
     def __load_policy__(self, agent, policy):
         """Pass the policy message of the agent id.
 
@@ -269,11 +257,6 @@ class Adapter(object):
         """
         msg = comm.PolicyMessage(agent_id=agent.agent_id, policy=policy)
         return agent.communicate(msg)
-
-    def __load_probabilities_maps__(self, agent, pm):
-        msg = comm.ProbabilityMapMessage(agent_id=agent, probability_map=pm)
-        self.client.send(msg)
-        return self.client.receive()
 
     def __load_policies_from_file__(self, filename):
         """Load policies from file.
@@ -328,23 +311,6 @@ class Adapter(object):
                     self.__load_policy__(agent, policies[agent.agent_id])
 
         log('Simulating game...')
-        print'foi'
-        if self.comm == 'pm':
-            print 'foi2'
-            probability_maps = []
-
-            for ghost in self.ghosts:
-                print self.__get_probability_map__(ghost)
-                print ghost.agent_id
-                probability_maps.append(self.__get_probability_map__(ghost))
-
-            self.__load_probabilities_maps__(agent=None, pm=probability_maps)
-
-            print probability_maps
-        elif self.comm == 'state':
-            print 'Soon'
-        elif self.comm == 'both':
-            print 'Soon'
         simulated_game = run_berkeley_games(self.layout, self.pacman,
                                             self.ghosts, self.display,
                                             NUMBER_OF_BERKELEY_GAMES,
@@ -387,6 +353,22 @@ class Adapter(object):
                                           agent_team=agent_team,
                                           agent_class=agent_class)
         return agent.communicate(msg)
+        
+    # def __execute_communication__(self):
+    #     if self.comm == 'pm':
+    #         
+    #         # for ghost in self.ghosts:
+    #         #     print self.__get_probability_map__(ghost)
+    #         #     ghostId.append(ghost.agent_id)
+    #         #     probability_maps.append(self.__get_probability_map__(ghost))
+    # 
+    #         # self.__load_probabilities_maps__(agent=ghostId, pm=probability_maps)
+    # 
+    #         # print probability_maps
+    #     elif self.comm == 'state':
+    #         print 'Soon'
+    #     elif self.comm == 'both':
+    #         print 'Soon'
 
     def __save_policies__(self, policies):
         """Save the policies from pacman and ghosts in the policy_file.

@@ -57,6 +57,8 @@ class Controller(object):
         self.game_states = {}
         self.game_number = {}
         self.server = server
+        self.ghostId = []
+        self.probability_map = []
 
         log('Ready')
 
@@ -259,31 +261,53 @@ class Controller(object):
         self.server.send(reply_msg)
 
     def __set_agent_pm__(self, msg):
-
-        width = msg.pm[0].width
-        height = msg.pm[0].height
-        sumOfValues = 0.0
-        newPM = [[0 for x in range(width)] for y in range(height)]
-
-        #Populate new matrix
-        for x in range(height):
-            for y in range(width):
-                for probMap in msg.pm:
-                    newPM[x][y] = newPM[x][y] + probMap[x][y]
-                sumOfValues = sumOfValues + newPM[x][y]
-        #Normalize it
-        for x in range(height):
-            for y in range(width):
-                newPM[x][y] = newPM[x][y]/sumOfValues
-
-
         
-        self.server.send(comm.AckMessage())
+        self.ghostId.append(msg.agent_id)
+        self.probability_map.append(msg.pm)
+        # print("Mapa recebido do agente {}".format(msg.agent_id))
+        # print(msg.pm)
+        
+        if len(self.probability_map) == len(self.__get_allies__(msg.agent_id))+1:
+            
+        
+            width = self.probability_map[0].width
+            height = self.probability_map[0].height
+            walls = self.probability_map[0].walls
+            sumOfValues = 0.0
+            newPM = Map(width, height, walls)
 
-        print newPM
+            #Populate new matrix
+            for x in range(height):
+                for y in range(width):
+                    for probMap in self.probability_map:
+                        if not probMap._is_wall((x, y)):
+                            newPM[x][y] = newPM[x][y] + probMap[x][y]
+                    
+                    if not newPM._is_wall((x, y)):
+                        sumOfValues = sumOfValues + newPM[x][y]
+            #Normalize it
+            for x in range(height):
+                for y in range(width):
+                    if not newPM._is_wall((x, y)):
+                        newPM[x][y] = newPM[x][y]/sumOfValues
+
+            # print("Novo mapa de probabilidade: ")
+            # print(newPM)
+            
+            for agent in self.ghostId:
+                self.game_states[agent].agent_maps[agent] = newPM
+                # print("Mapa de probabilidade do agente {}".format(agent))
+                # print self.game_states[agent].agent_maps[agent]
+
+            self.ghostId = []
+            self.probability_map = []
+            self.server.send(comm.AckMessage())
+        else:
+            self.server.send(comm.AckMessage())
+
 
         """Vai chamar a load probability maps, calcular, normalizar e distrubir"""
-        print('ayyy')
+        #print('ayyy')
 
     def __process__(self, msg):
         """Process the message type.

@@ -45,8 +45,8 @@ import features
 import learning
 import Queue
 
-from communication import (ZMQMessengerBase, RequestGameStartMessage,
-                           StateMessage)
+from communication import (ZMQMessengerBase, RequestGameStartMessage, RequestProbabilityMapMessage,
+                           StateMessage, ProbabilityMapMessage)
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -106,6 +106,8 @@ class AdapterAgent(object, BerkeleyGameAgent):
 
         self.test_mode = False
 
+        self.simulationCount = 1
+
     def __noise_error__(self):
         """Return the noise from the noise interval.
 
@@ -136,8 +138,9 @@ class AdapterAgent(object, BerkeleyGameAgent):
             A message requested to ZMQMessengerBase.
         """
         self.client.send(msg)
-        print msg
+        # print msg
         return self.client.receive()
+
 
     def create_state_message(self, state):
         """Create a message.
@@ -213,7 +216,8 @@ class AdapterAgent(object, BerkeleyGameAgent):
         reply_msg = self.communicate(msg)
 
         self.previous_action = reply_msg.action
-
+        
+        
         if reply_msg.action not in state.getLegalActions(self.agent_id):
             self.invalid_action = True
             return self.act_when_invalid(state)
@@ -233,7 +237,7 @@ class AdapterAgent(object, BerkeleyGameAgent):
                                       map_width=layout.width,
                                       map_height=layout.height)
         self.communicate(msg)
-
+    
     def update(self, state):
         """Create a state message from the current state.
 
@@ -244,6 +248,7 @@ class AdapterAgent(object, BerkeleyGameAgent):
         """
         msg = self.create_state_message(state)
         self.communicate(msg)
+        
 
 
 class PacmanAdapterAgent(AdapterAgent):
@@ -289,7 +294,7 @@ class GhostAdapterAgent(AdapterAgent):
         previous_action: The previous action, defaul is Directions.NORTH.
     """
 
-    def __init__(self, agent_id, client):
+    def __init__(self, agent_id, client, comm):
         """Extend the Constructor method from the AdapterAgent superclass.
 
         Args:
@@ -299,13 +304,30 @@ class GhostAdapterAgent(AdapterAgent):
         super(GhostAdapterAgent, self).__init__(agent_id, client)
 
         self.previous_action = Directions.NORTH
+        self.comm = comm
         # self.actions = GHOST_ACTIONS
+
 
     """Todo:
         Is this ever used?
     """
     # def act_when_invalid(self, state):
     #     return random.choice(state.getLegalActions(self.agent_id))
+
+    def __get_probability_map__(self, agent_id):
+        """Request the agent probability map.
+
+        Args:
+            agent: The agent to get the map.
+        """
+        msg = RequestProbabilityMapMessage(agent_id)
+        reply_msg = super(GhostAdapterAgent, self).communicate(msg)
+        return reply_msg.pm
+
+    def __load_probabilities_maps__(self, agent, pm):
+        msg = ProbabilityMapMessage(agent_id=agent, probability_map=pm)
+        self.client.send(msg)
+        return self.client.receive()
 
     def calculate_reward(self, current_score):
         """Calculate the reward.
@@ -316,6 +338,30 @@ class GhostAdapterAgent(AdapterAgent):
             The previous_score - current_score.
         """
         return self.previous_score - current_score
+    
+    def getAction(self, state):
+        """Get an action from directions.
+
+        Args:
+            state: A state of the game.
+        Returns:
+            An action from Directions.
+        """
+        msg = self.create_state_message(state)
+        reply_msg = self.communicate(msg)
+
+        self.previous_action = reply_msg.action
+        
+        if self.comm == 'pm':
+            pm_map = self.__get_probability_map__(self.agent_id)
+            self.__load_probabilities_maps__(self.agent_id, pm_map)
+
+        if reply_msg.action not in state.getLegalActions(self.agent_id):
+            self.invalid_action = True
+            return self.act_when_invalid(state)
+        else:
+            self.invalid_action = False
+            return reply_msg.action
 
 ###############################################################################
 #                                                                             #
@@ -701,6 +747,7 @@ class BehaviorLearningPacmanAgent(PacmanAgent):
             return Directions.STOP
         else:
             return random.choice(legal_actions)
+
 
     def enable_learn_mode(self):
         """Enable Learn Mode.
