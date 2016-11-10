@@ -45,7 +45,8 @@ import features
 import learning
 import Queue
 
-from communication import (ZMQMessengerBase, RequestGameStartMessage, RequestProbabilityMapMessage,
+from communication import (ZMQMessengerBase, RequestGameStartMessage,
+                           RequestProbabilityMapMessage,
                            StateMessage, ProbabilityMapMessage)
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
@@ -141,7 +142,6 @@ class AdapterAgent(object, BerkeleyGameAgent):
         # print msg
         return self.client.receive()
 
-
     def create_state_message(self, state):
         """Create a message.
 
@@ -216,8 +216,7 @@ class AdapterAgent(object, BerkeleyGameAgent):
         reply_msg = self.communicate(msg)
 
         self.previous_action = reply_msg.action
-        
-        
+
         if reply_msg.action not in state.getLegalActions(self.agent_id):
             self.invalid_action = True
             return self.act_when_invalid(state)
@@ -237,7 +236,7 @@ class AdapterAgent(object, BerkeleyGameAgent):
                                       map_width=layout.width,
                                       map_height=layout.height)
         self.communicate(msg)
-    
+
     def update(self, state):
         """Create a state message from the current state.
 
@@ -248,7 +247,6 @@ class AdapterAgent(object, BerkeleyGameAgent):
         """
         msg = self.create_state_message(state)
         self.communicate(msg)
-        
 
 
 class PacmanAdapterAgent(AdapterAgent):
@@ -307,7 +305,6 @@ class GhostAdapterAgent(AdapterAgent):
         self.comm = comm
         # self.actions = GHOST_ACTIONS
 
-
     """Todo:
         Is this ever used?
     """
@@ -325,6 +322,7 @@ class GhostAdapterAgent(AdapterAgent):
         return reply_msg.pm
 
     def __load_probabilities_maps__(self, agent, pm):
+        """Set the probability maps back to the agents."""
         msg = ProbabilityMapMessage(agent_id=agent, probability_map=pm)
         self.client.send(msg)
         return self.client.receive()
@@ -338,7 +336,7 @@ class GhostAdapterAgent(AdapterAgent):
             The previous_score - current_score.
         """
         return self.previous_score - current_score
-    
+
     def getAction(self, state):
         """Get an action from directions.
 
@@ -351,7 +349,7 @@ class GhostAdapterAgent(AdapterAgent):
         reply_msg = self.communicate(msg)
 
         self.previous_action = reply_msg.action
-        
+
         if self.comm == 'pm':
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps__(self.agent_id, pm_map)
@@ -522,6 +520,7 @@ class BFS_PacmanAgent(PacmanAgent):
 
     def choose_action(self, state, action, reward, legal_actions, explore):
         """Choose the action that brigs Pacman to the neartest food.
+
         Args:
             state: Current game state.
             action: Last executed action.
@@ -535,7 +534,7 @@ class BFS_PacmanAgent(PacmanAgent):
         visited = []
 
         initial_position = state.get_position()
-        
+
         food_map = state.food_map
 
         agent_map = state.get_map()
@@ -545,12 +544,12 @@ class BFS_PacmanAgent(PacmanAgent):
 
         closest_food = None
         while not queue.empty():
-            
-            if(closest_food != None):
+
+            if(closest_food is not None):
                 break
 
             current_edge = queue.get()
-            (k,l) = current_edge     
+            (k, l) = current_edge
 
             random.shuffle(PACMAN_ACTIONS)
             for actions in PACMAN_ACTIONS:
@@ -558,14 +557,14 @@ class BFS_PacmanAgent(PacmanAgent):
                 diff = agent_map.action_to_pos[actions]
                 new_edge = (k + diff[0],
                             l + diff[1])
-                    
+
                 if agent_map._is_valid_position(new_edge):
-                    if not new_edge in visited:
-                        (i,j) = new_edge
+                    if new_edge not in visited:
+                        (i, j) = new_edge
                         if food_map[i][j] > 0.0:
-                            if closest_food == None:    
+                            if closest_food is None:
                                 closest_food = new_edge
-                        else:       
+                        else:
                             queue.put(new_edge)
                             visited.append(new_edge)
 
@@ -577,23 +576,21 @@ class BFS_PacmanAgent(PacmanAgent):
         best_action = None
         min_dist = float('inf')
 
-        (f,p) = (0,0)
-        
+        (f, p) = (0, 0)
+
         for actions in legal_actions:
-            
+
             diff = agent_map.action_to_pos[actions]
             new_edge = (initial_position[0] + diff[0],
                         initial_position[1] + diff[1])
 
-            
-            new_dist = state.calculate_distance(new_edge,
-                                            closest_food)
+            new_dist = state.calculate_distance(new_edge, closest_food)
 
             if new_dist <= min_dist:
                 min_dist = new_dist
                 best_action = actions
-                (f,p) = new_edge
-        
+                (f, p) = new_edge
+
         food_map[f][p] = 0.0
         return best_action
 
@@ -620,8 +617,11 @@ class RandomGhostAgent(GhostAgent):
 
 
 class ReflexPacManAgent(PacmanAgent):
+    """Reflex pacman agent."""
+
     def __init__(self, agent_id, ally_ids, enemy_ids):
         """Extend the constructor from the PacmanAgent superclass.
+
         Args:
             agent_id: The identifier of an agent.
             ally_ids: The identifier of all allies agents.
@@ -633,8 +633,9 @@ class ReflexPacManAgent(PacmanAgent):
     def choose_action(self, state, action, reward, legal_actions, test):
         """Choose a suggested action.
 
-        Choose an action that if theres no enemies in a distance of at least 5 will lead him to the closest food, otherwise
-        it will choose an action that lead him as far as possible from all the enemies.
+        Choose an action that if theres no enemies in a distance of at least 5
+        will lead him to the closest food, otherwise it will choose an action
+        that lead him as far as possible from all the enemies.
 
         Args:
             state: Current game state.
@@ -646,7 +647,7 @@ class ReflexPacManAgent(PacmanAgent):
             Suggested Action.
         """
         agent_map = state.get_map()
-        (x,y) = state.get_position()
+        (x, y) = state.get_position()
 
         nearby_enemies = []
         enemies_locations = []
@@ -656,13 +657,13 @@ class ReflexPacManAgent(PacmanAgent):
             enemies_locations.append(q)
             if state.get_fragile_agent(p):
                 FragileFlag = True
-            else: 
+            else:
                 FragileFlag = False
 
         for enemy_position in enemies_locations:
-            distance = state.calculate_distance((x,y),enemy_position)
+            distance = state.calculate_distance((x, y), enemy_position)
             if distance < 4:
-                nearby_enemies.append(enemy_position)  
+                nearby_enemies.append(enemy_position)
 
         if len(nearby_enemies) == 0 or FragileFlag is True:
             suggested_action = self.eat_behavior(state, legal_actions)
@@ -680,12 +681,13 @@ class ReflexPacManAgent(PacmanAgent):
                 for enemie in nearby_enemies:
                     diff = agent_map.action_to_pos[actions]
                     new_position = (diff[0]+x, diff[1]+y)
-                    new_distance += state.calculate_distance(new_position,enemie)
+                    new_distance += state.calculate_distance(new_position,
+                                                             enemie)
                 if new_distance > max_distance:
                     max_distance = new_distance
                     best_action = actions
             return best_action
-        
+
 
 class EaterPacmanAgent(PacmanAgent):
     """Greedy Pacman Agent.
@@ -847,7 +849,6 @@ class BehaviorLearningPacmanAgent(PacmanAgent):
             return Directions.STOP
         else:
             return random.choice(legal_actions)
-
 
     def enable_learn_mode(self):
         """Enable Learn Mode.

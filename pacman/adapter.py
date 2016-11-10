@@ -185,7 +185,8 @@ class Adapter(object):
         ghost_name = self.ghost_class.__name__
         self.ghosts = []
         for x in xrange(num_ghosts):
-            ghost = agents.GhostAdapterAgent(x + 1, client=client, comm=self.comm)
+            ghost = agents.GhostAdapterAgent(x + 1, client=client,
+                                             comm=self.comm)
             log('Created {} #{}.'.format(ghost_name, ghost.agent_id))
             self.__register_agent__(ghost, 'ghost', self.ghost_class)
             self.ghosts.append(ghost)
@@ -353,22 +354,6 @@ class Adapter(object):
                                           agent_team=agent_team,
                                           agent_class=agent_class)
         return agent.communicate(msg)
-        
-    # def __execute_communication__(self):
-    #     if self.comm == 'pm':
-    #         
-    #         # for ghost in self.ghosts:
-    #         #     print self.__get_probability_map__(ghost)
-    #         #     ghostId.append(ghost.agent_id)
-    #         #     probability_maps.append(self.__get_probability_map__(ghost))
-    # 
-    #         # self.__load_probabilities_maps__(agent=ghostId, pm=probability_maps)
-    # 
-    #         # print probability_maps
-    #     elif self.comm == 'state':
-    #         print 'Soon'
-    #     elif self.comm == 'both':
-    #         print 'Soon'
 
     def __save_policies__(self, policies):
         """Save the policies from pacman and ghosts in the policy_file.
@@ -411,7 +396,7 @@ class Adapter(object):
             * This as one list, probably by checking if agent is instance of
                 BehaviorLearningAgent (needs refactoring).
         """
-        #Initialize Results
+        # Initialize Results
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
             results['behavior_count'][self.pacman.agent_id] = {}
 

@@ -219,6 +219,7 @@ class ActionMessage(BaseMessage):
         self.agent_id = agent_id
         self.action = action
 
+
 class BehaviorCountMessage(BaseMessage):
     """Carries the requested behavior count.
 
@@ -263,15 +264,26 @@ class PolicyMessage(BaseMessage):
 
 
 class ProbabilityMapMessage(BaseMessage):
-    """ """
+    """Base Message for the probability map.
+
+    Attributes:
+        agent_id: The identifier of the agent.
+        pm: The probability map.
+    """
 
     def __init__(self, agent_id=None, probability_map=None):
+        """Constructor for the ProbabilityMapMessage class.
 
+        Args:
+            agent_id: The identifier of the agent.
+            pm: The probability map.
+        """
         super(ProbabilityMapMessage,
               self).__init__(msg_type=PROBABILITY_MAP_MSG)
 
         self.agent_id = agent_id
         self.pm = probability_map
+
 
 class RequestMessage(BaseMessage):
     """Requests some information."""
@@ -285,6 +297,7 @@ class RequestMessage(BaseMessage):
             msg_type: The type of the message.
         """
         super(RequestMessage, self).__init__(msg_type=msg_type)
+
 
 class RequestInitializationMessage(RequestMessage):
     """Requests that the identified agent be REQUEST_INITIALIZED.
@@ -413,6 +426,11 @@ class RequestProbabilityMapMessage(RequestMessage):
     """
 
     def __init__(self, agent_id=None):
+        """Constructor for the RequestProbabilityMapMessage.
+
+        Args:
+            agent_id: The identifier of an agent.
+        """
         super(RequestProbabilityMapMessage,
               self).__init__(msg_type=REQUEST_PM_MSG)
 

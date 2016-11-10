@@ -255,37 +255,39 @@ class Controller(object):
                                            msg.agent_id))
 
     def __request_probability_map__(self, msg):
-        probability_map = self.game_states[msg.agent_id].agent_maps[msg.agent_id]
-        reply_msg = comm.ProbabilityMapMessage(agent_id=msg.agent_id,
+        """Request the probability maps."""
+        ident = msg.agent_id
+        probability_map = self.game_states[ident].agent_maps[ident]
+
+        reply_msg = comm.ProbabilityMapMessage(agent_id=ident,
                                                probability_map=probability_map)
         self.server.send(reply_msg)
 
     def __set_agent_pm__(self, msg):
-        
+        """Set the probability map back to the agents."""
         self.ghostId.append(msg.agent_id)
         self.probability_map.append(msg.pm)
         # print("Mapa recebido do agente {}".format(msg.agent_id))
         # print(msg.pm)
-        
-        if len(self.probability_map) == len(self.__get_allies__(msg.agent_id))+1:
-            
-        
+        ident = msg.agent_id
+
+        if len(self.probability_map) == len(self.__get_allies__(ident))+1:
             width = self.probability_map[0].width
             height = self.probability_map[0].height
             walls = self.probability_map[0].walls
             sumOfValues = 0.0
             newPM = Map(width, height, walls)
 
-            #Populate new matrix
+            # Populate new matrix
             for x in range(height):
                 for y in range(width):
                     for probMap in self.probability_map:
                         if not probMap._is_wall((x, y)):
                             newPM[x][y] = newPM[x][y] + probMap[x][y]
-                    
+
                     if not newPM._is_wall((x, y)):
                         sumOfValues = sumOfValues + newPM[x][y]
-            #Normalize it
+            # Normalize it
             for x in range(height):
                 for y in range(width):
                     if not newPM._is_wall((x, y)):
@@ -293,7 +295,7 @@ class Controller(object):
 
             # print("Novo mapa de probabilidade: ")
             # print(newPM)
-            
+
             for agent in self.ghostId:
                 self.game_states[agent].agent_maps[agent] = newPM
                 # print("Mapa de probabilidade do agente {}".format(agent))
@@ -304,10 +306,6 @@ class Controller(object):
             self.server.send(comm.AckMessage())
         else:
             self.server.send(comm.AckMessage())
-
-
-        """Vai chamar a load probability maps, calcular, normalizar e distrubir"""
-        #print('ayyy')
 
     def __process__(self, msg):
         """Process the message type.
