@@ -647,7 +647,7 @@ class FleetPacManAgent(PacmanAgent):
 
         for enemy_position in enemies_locations:
             distance = state.calculate_distance((x,y),enemy_position)
-            if distance < 5:
+            if distance < 4:
                 nearby_enemies.append(enemy_position)  
 
         if len(nearby_enemies) == 0:
