@@ -624,7 +624,7 @@ class FleetPacManAgent(PacmanAgent):
             ally_ids: The identifier of all allies agents.
             enemy_ids: The identifier of all enemies agents.
         """
-        super(ReflexPacManAgent, self).__init__(agent_id, ally_ids, enemy_ids)
+        super(FleetPacManAgent, self).__init__(agent_id, ally_ids, enemy_ids)
         self.eat_behavior = behaviors.EatBehavior()
 
     def choose_action(self, state, action, reward, legal_actions, test):
