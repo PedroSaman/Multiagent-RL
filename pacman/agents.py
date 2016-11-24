@@ -1016,13 +1016,13 @@ class BehaviorLearningGhostAgent(GhostAgent):
 
         # print ("\nAgente {} Comunica:".format(self.agent_id))
         # print ("Antes - Behavior do agente {}: {}".
-               format(self.agent_id, self.actual_behavior))
+        # format(self.agent_id, self.actual_behavior))
         behavior = self.learning.act(state, self.actual_behavior,
                                      self.communicationHappened)
         self.actual_behavior = behavior
         self.previous_behavior = behavior
         # print ("Depois - Behavior do agente {}: {}".
-               format(self.agent_id, behavior))
+        # format(self.agent_id, behavior))
 
         suggested_action = behavior(state, legal_actions)
 
