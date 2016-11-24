@@ -678,7 +678,7 @@ class GameState(object):
         agent_position = self.get_agent_position(agent_id)
         return self.calculate_distance(my_position, agent_position)
 
-    def get_closest_ally(self, state):
+    def get_closest_ally(self):
         """Get the identifier of the closest ally.
 
         Args:

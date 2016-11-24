@@ -47,7 +47,8 @@ import Queue
 
 from communication import (ZMQMessengerBase, RequestGameStartMessage,
                            RequestProbabilityMapMessage,
-                           StateMessage, ProbabilityMapMessage)
+                           StateMessage, ProbabilityMapMessage,
+                           RequestGoalMessage, GoalMessage, ACK_MSG)
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -337,6 +338,22 @@ class GhostAdapterAgent(AdapterAgent):
         """
         return self.previous_score - current_score
 
+    def __get_goal__(self, agent_id):
+        """Request the agent probability map.
+
+        Args:
+            agent: The agent to get the map.
+        """
+        msg = RequestGoalMessage(agent_id)
+        reply_msg = super(GhostAdapterAgent, self).communicate(msg)
+        return reply_msg
+
+    def __load_goal__(self, agent, goal):
+        """Set the probability maps back to the agents."""
+        msg = GoalMessage(agent_id=agent, goal=goal)
+        self.client.send(msg)
+        return self.client.receive()
+
     def getAction(self, state):
         """Get an action from directions.
 
@@ -353,6 +370,21 @@ class GhostAdapterAgent(AdapterAgent):
         if self.comm == 'pm':
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps__(self.agent_id, pm_map)
+        elif self.comm == 'state':
+            msg = self.__get_goal__(self.agent_id)
+            if(msg.type != ACK_MSG):
+                print("Goal recebido do aliado: {}".format(msg.goal))
+                goal = msg.goal
+                self.__load_goal__(self.agent_id, goal)
+        elif self.comm == 'both':
+            pm_map = self.__get_probability_map__(self.agent_id)
+            self.__load_probabilities_maps__(self.agent_id, pm_map)
+
+            msg = self.__get_goal__(self.agent_id)
+            if(msg.type != ACK_MSG):
+                print("Goal recebido do aliado: {}".format(msg.goal))
+                goal = msg.goal
+                self.__load_goal__(self.agent_id, goal)
 
         if reply_msg.action not in state.getLegalActions(self.agent_id):
             self.invalid_action = True
@@ -915,6 +947,7 @@ class BehaviorLearningGhostAgent(GhostAgent):
         self.behavior_count = {}
         self.reset_behavior_count()
 
+        self.actual_behavior = self.previous_behavior
         self.test_mode = False
 
     def reset_behavior_count(self):
@@ -965,11 +998,13 @@ class BehaviorLearningGhostAgent(GhostAgent):
             self.learning.learning_rate = self.K / (self.K + state.iteration)
             self.learning.learn(state, self.previous_behavior, reward)
 
-        behavior = self.learning.act(state)
-        self.previous_behavior = behavior
-        suggested_action = behavior(state, legal_actions)
+        self.actual_behavior = self.learning.act(state)
+        self.previous_behavior = self.actual_behavior
+        print ("Behavior no agente {}: {}".format(self.agent_id,
+                                                  self.actual_behavior))
+        suggested_action = self.actual_behavior(state, legal_actions)
 
-        self.behavior_count[str(behavior)] += 1
+        self.behavior_count[str(self.actual_behavior)] += 1
 
         if suggested_action in legal_actions:
             return suggested_action

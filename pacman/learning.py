@@ -278,7 +278,6 @@ class QLearningWithApproximation(LearningAlgorithm):
         self.discount_factor = discount_factor
         self.previous_state = None
         self.exploration_rate = exploration_rate
-
         self.weights = {}
         self._init_weights()
 

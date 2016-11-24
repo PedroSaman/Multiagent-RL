@@ -254,10 +254,23 @@ class Controller(object):
         log('Start game for {} #{}'.format(self.agent_teams[msg.agent_id],
                                            msg.agent_id))
 
+    def __request_goal__(self, msg):
+        """Request the goal."""
+        state = self.game_states[msg.agent_id]
+        ident = msg.agent_id
+        ally = state.get_closest_ally()
+        if state.get_distance_to_agent(ally) < 7:
+            goal = self.agents[ally].previous_behavior
+            reply_msg = comm.GoalMessage(agent_id=ident, goal=goal)
+            self.server.send(reply_msg)
+        else:
+            self.server.send(comm.AckMessage())
+
     def __request_probability_map__(self, msg):
         """Request the probability maps."""
         ident = msg.agent_id
-        probability_map = self.game_states[ident].agent_maps[ident]
+        pacman = self.__get_enemies__(ident)
+        probability_map = self.game_states[ident].agent_maps[pacman[0]]
 
         reply_msg = comm.ProbabilityMapMessage(agent_id=ident,
                                                probability_map=probability_map)
@@ -267,8 +280,10 @@ class Controller(object):
         """Set the probability map back to the agents."""
         self.ghostId.append(msg.agent_id)
         self.probability_map.append(msg.pm)
-        # print("Mapa recebido do agente {}".format(msg.agent_id))
-        # print(msg.pm)
+
+        pacman = self.__get_enemies__(msg.agent_id)
+        print("Mapa recebido do agente {}".format(msg.agent_id))
+        print(msg.pm)
         ident = msg.agent_id
 
         if len(self.probability_map) == len(self.__get_allies__(ident))+1:
@@ -293,19 +308,34 @@ class Controller(object):
                     if not newPM._is_wall((x, y)):
                         newPM[x][y] = newPM[x][y]/sumOfValues
 
-            # print("Novo mapa de probabilidade: ")
-            # print(newPM)
+            print("Novo mapa de probabilidade: ")
+            print(newPM)
 
             for agent in self.ghostId:
-                self.game_states[agent].agent_maps[agent] = newPM
-                # print("Mapa de probabilidade do agente {}".format(agent))
-                # print self.game_states[agent].agent_maps[agent]
+                self.game_states[agent].agent_maps[pacman[0]] = newPM
+                print("Mapa de probabilidade do agente {}".format(agent))
+                print self.game_states[agent].agent_maps[pacman[0]]
 
             self.ghostId = []
             self.probability_map = []
             self.server.send(comm.AckMessage())
         else:
             self.server.send(comm.AckMessage())
+
+    def __set_goal__(self, msg):
+        behavior = self.agents[msg.agent_id].behaviors
+
+        print ("Comportamento recebido pelo agente {}: {}".format(msg.agent_id,
+                                                                  msg.goal))
+
+        if (str(msg.goal) == str(behavior[1])):  # SeekBehavior
+            print ("Comportamento a ser mudado: {}".format(behavior[2]))
+            self.agents[msg.agent_id].actual_behavior = behavior[2]
+        elif (str(msg.goal) == str(behavior[2])):  # PursueBehavior
+            print ("Comportamento a ser mudado: {}".format(behavior[1]))
+            self.agents[msg.agent_id].actual_behavior = behavior[1]
+
+        self.server.send(comm.AckMessage())
 
     def __process__(self, msg):
         """Process the message type.
@@ -334,6 +364,10 @@ class Controller(object):
             self.__set_agent_pm__(msg)
         elif msg.type == comm.REQUEST_PM_MSG:
             self.__request_probability_map__(msg)
+        elif msg.type == comm.REQUEST_GOAL_MSG:
+            self.__request_goal__(msg)
+        elif msg.type == comm.GOAL_MSG:
+            self.__set_goal__(msg)
 
     def run(self):
         """Run the Controller.

@@ -159,7 +159,9 @@ REQUEST_GAME_START_MSG = 'RequestGameStart'
 REQUEST_INIT_MSG = 'RequestInitialization'
 REQUEST_PM_MSG = 'RequestProbabilityMap'
 REQUEST_POLICY_MSG = 'RequestPolicy'
+REQUEST_GOAL_MSG = 'RequestGoal'
 STATE_MSG = 'State'
+GOAL_MSG = 'Goal'
 
 
 class BaseMessage(object):
@@ -283,6 +285,30 @@ class ProbabilityMapMessage(BaseMessage):
 
         self.agent_id = agent_id
         self.pm = probability_map
+
+
+class GoalMessage(BaseMessage):
+    """Base Message for the Behavior communication.
+
+    Attributes:
+        agent_id: The identifier of the agent.
+        goal: A int value that determine wheater the agent is Seeking, Pursuing
+            or Fleeing.
+    """
+
+    def __init__(self, agent_id=None, goal=None):
+        """Constructor for the GoalMessage class.
+
+        Args:
+            agent_id: The identifier of the agent.
+            goal: A int value that determine wheater the agent is Seeking,
+                Pursuing or Fleeing.
+        """
+        super(GoalMessage,
+              self).__init__(msg_type=GOAL_MSG)
+
+        self.agent_id = agent_id
+        self.goal = goal
 
 
 class RequestMessage(BaseMessage):
@@ -433,6 +459,29 @@ class RequestProbabilityMapMessage(RequestMessage):
         """
         super(RequestProbabilityMapMessage,
               self).__init__(msg_type=REQUEST_PM_MSG)
+
+        self.agent_id = agent_id
+
+
+class RequestGoalMessage(RequestMessage):
+    """Base Request Message for the Behavior communication.
+
+    Attributes:
+        agent_id: The identifier of the agent.
+        goal: A int value that determine wheater the agent is Seeking, Pursuing
+            or Fleeing.
+    """
+
+    def __init__(self, agent_id=None):
+        """Constructor for the GoalMessage class.
+
+        Args:
+            agent_id: The identifier of the agent.
+            goal: A int value that determine wheater the agent is Seeking,
+                Pursuing or Fleeing.
+        """
+        super(RequestGoalMessage,
+              self).__init__(msg_type=REQUEST_GOAL_MSG)
 
         self.agent_id = agent_id
 
