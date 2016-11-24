@@ -429,7 +429,7 @@ class QLearningWithApproximation(LearningAlgorithm):
         p = random.random()
 
         if communicationHappened:
-            print("ExploitCommunication!")
+            # print("ExploitCommunication!")
             return self._exploitComm(state, actual_behavior)
         elif p < self.exploration_rate:
             return self._explore()

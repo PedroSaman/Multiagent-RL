@@ -351,14 +351,14 @@ class Controller(object):
                 # format(behavior[2]))
             self.agents[msg.agent_id].communicationHappened = True
             self.agents[msg.agent_id].actual_behavior = behavior[2]
-            print(self.agents[msg.agent_id].actual_behavior)
+            # print(self.agents[msg.agent_id].actual_behavior)
         elif (str(allyBehavior) == str(behavior[2]) and
                 str(agentBehavior) == str(behavior[0])):  # PursueBehavior
             # print("Comportamento deve ser mudado para: {}".
             # format(behavior[1]))
             self.agents[msg.agent_id].communicationHappened = True
             self.agents[msg.agent_id].actual_behavior = behavior[1]
-            print(self.agents[msg.agent_id].actual_behavior)
+            # print(self.agents[msg.agent_id].actual_behavior)
         else:
             self.agents[msg.agent_id].communicationHappened = False
         self.server.send(comm.AckMessage())
