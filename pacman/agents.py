@@ -373,7 +373,6 @@ class GhostAdapterAgent(AdapterAgent):
         elif self.comm == 'state':
             msg = self.__get_goal__(self.agent_id)
             if(msg.type != ACK_MSG):
-                print("Goal recebido do aliado: {}".format(msg.goal))
                 goal = msg.goal
                 self.__load_goal__(self.agent_id, goal)
         elif self.comm == 'both':
@@ -382,7 +381,6 @@ class GhostAdapterAgent(AdapterAgent):
 
             msg = self.__get_goal__(self.agent_id)
             if(msg.type != ACK_MSG):
-                print("Goal recebido do aliado: {}".format(msg.goal))
                 goal = msg.goal
                 self.__load_goal__(self.agent_id, goal)
 
@@ -648,39 +646,56 @@ class RandomGhostAgent(GhostAgent):
             return random.choice(legal_actions)
 
 
-class FleetPacManAgent(PacmanAgent):
+class FleetPacmanAgent(PacmanAgent):
+    """Pacman that run away from ghosts and get food.
+
+    Attributes:
+        agent_id: The identifier of an agent.
+        ally_ids: The identifier of all allies agents.
+        enemy_ids: The identifier of all enemies agents.
+    """
+
     def __init__(self, agent_id, ally_ids, enemy_ids):
         """Extend the constructor from the PacmanAgent superclass.
+
         Args:
             agent_id: The identifier of an agent.
             ally_ids: The identifier of all allies agents.
             enemy_ids: The identifier of all enemies agents.
         """
-        super(FleetPacManAgent, self).__init__(agent_id, ally_ids, enemy_ids)
+        super(FleetPacmanAgent, self).__init__(agent_id, ally_ids, enemy_ids)
         self.eat_behavior = behaviors.EatBehavior()
 
     def choose_action(self, state, action, reward, legal_actions, test):
-        
+        """Choose the best action.
+
+        Args:
+            state: Current game state.
+            action: Last executed action.
+            reward: Reward for the previous action.
+            legal_actions: List of currently allowed actions.
+            test: Boolean whether agent is allowed to explore.
+        """
         agent_map = state.get_map()
-        (x,y) = state.get_position()
+        (x, y) = state.get_position()
 
         nearby_enemies = []
         enemies_locations = []
         fragile_enemies_position = []
-        
+
         for p in state.enemy_ids:
             q = state.get_agent_position(p)
             enemies_locations.append(q)
             if state.get_fragile_agent(p):
                 fragile_enemies_position.append(q)
                 FragileFlag = True
-            else: 
+            else:
                 FragileFlag = False
 
         for enemy_position in enemies_locations:
-            distance = state.calculate_distance((x,y),enemy_position)
+            distance = state.calculate_distance((x, y), enemy_position)
             if distance < 4:
-                nearby_enemies.append(enemy_position)  
+                nearby_enemies.append(enemy_position)
 
         if len(nearby_enemies) == 0:
             suggested_action = self.eat_behavior(state, legal_actions)
@@ -690,7 +705,7 @@ class FleetPacManAgent(PacmanAgent):
                 return Directions.STOP
             else:
                 return random.choice(legal_actions)
-        
+
         elif FragileFlag is True:
             min_distance = float('inf')
             best_action = None
@@ -698,13 +713,14 @@ class FleetPacManAgent(PacmanAgent):
                 for actions in legal_actions:
                     diff = agent_map.action_to_pos[actions]
                     new_position = (diff[0]+x, diff[1]+y)
-                    new_distance = state.calculate_distance(new_position,enemie)
+                    new_distance = state.calculate_distance(new_position,
+                                                            enemie)
                     if(new_distance < min_distance):
                         min_distance = new_distance
                         best_action = action
             if(best_action is not None):
                 return best_action
-        
+
         else:
             max_distance = (-1)*float('inf')
             best_action = None
@@ -713,7 +729,8 @@ class FleetPacManAgent(PacmanAgent):
                 for enemie in nearby_enemies:
                     diff = agent_map.action_to_pos[actions]
                     new_position = (diff[0]+x, diff[1]+y)
-                    new_distance += state.calculate_distance(new_position,enemie)
+                    new_distance += state.calculate_distance(new_position,
+                                                             enemie)
                 if new_distance > max_distance:
                     max_distance = new_distance
                     best_action = actions
@@ -945,7 +962,7 @@ class BehaviorLearningGhostAgent(GhostAgent):
         self.previous_behavior = self.behaviors[0]
         self.behavior_count = {}
         self.reset_behavior_count()
-
+        self.communicationHappened = False
         self.actual_behavior = self.previous_behavior
         self.test_mode = False
 
@@ -997,13 +1014,19 @@ class BehaviorLearningGhostAgent(GhostAgent):
             self.learning.learning_rate = self.K / (self.K + state.iteration)
             self.learning.learn(state, self.previous_behavior, reward)
 
-        self.actual_behavior = self.learning.act(state)
-        self.previous_behavior = self.actual_behavior
-        print ("Behavior no agente {}: {}".format(self.agent_id,
-                                                  self.actual_behavior))
-        suggested_action = self.actual_behavior(state, legal_actions)
+        # print ("\nAgente {} Comunica:".format(self.agent_id))
+        # print ("Antes - Behavior do agente {}: {}".
+               format(self.agent_id, self.actual_behavior))
+        behavior = self.learning.act(state, self.actual_behavior,
+                                     self.communicationHappened)
+        self.actual_behavior = behavior
+        self.previous_behavior = behavior
+        # print ("Depois - Behavior do agente {}: {}".
+               format(self.agent_id, behavior))
 
-        self.behavior_count[str(self.actual_behavior)] += 1
+        suggested_action = behavior(state, legal_actions)
+
+        self.behavior_count[str(behavior)] += 1
 
         if suggested_action in legal_actions:
             return suggested_action

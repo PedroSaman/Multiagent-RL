@@ -333,6 +333,7 @@ class QLearningWithApproximation(LearningAlgorithm):
             A random choice on the max_actions list.
         """
         actions = filter(lambda a: a in action_list, self.actions)
+
         values = [self.get_q_value(state, action) for action in actions]
         max_value = max(values)
         max_actions = [action for action in actions
@@ -407,7 +408,17 @@ class QLearningWithApproximation(LearningAlgorithm):
         """
         return self._get_max_action_from_list(state, self.actions)
 
-    def act(self, state):
+    def _exploitComm(self, state, actual_behavior):
+        """Exploit communication action.
+
+        Returns:
+            Max action from list of pair state-action.
+        """
+        actions = []
+        actions.append(actual_behavior)
+        return self._get_max_action_from_list(state, actions)
+
+    def act(self, state, actual_behavior, communicationHappened):
         """Choose if the agent will explore or exploit and act.
 
         Args:
@@ -417,7 +428,10 @@ class QLearningWithApproximation(LearningAlgorithm):
         """
         p = random.random()
 
-        if p < self.exploration_rate:
+        if communicationHappened:
+            print("ExploitCommunication!")
+            return self._exploitComm(state, actual_behavior)
+        elif p < self.exploration_rate:
             return self._explore()
         else:
             return self._exploit(state)

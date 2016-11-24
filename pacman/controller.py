@@ -255,7 +255,11 @@ class Controller(object):
                                            msg.agent_id))
 
     def __request_goal__(self, msg):
-        """Request the goal."""
+        """Request the goal.
+
+        Args:
+            msg:  A message of type GOAL_MSG
+        """
         state = self.game_states[msg.agent_id]
         ident = msg.agent_id
         ally = state.get_closest_ally()
@@ -282,8 +286,8 @@ class Controller(object):
         self.probability_map.append(msg.pm)
 
         pacman = self.__get_enemies__(msg.agent_id)
-        print("Mapa recebido do agente {}".format(msg.agent_id))
-        print(msg.pm)
+        # print("Mapa recebido do agente {}".format(msg.agent_id))
+        # print(msg.pm)
         ident = msg.agent_id
 
         if len(self.probability_map) == len(self.__get_allies__(ident))+1:
@@ -308,13 +312,13 @@ class Controller(object):
                     if not newPM._is_wall((x, y)):
                         newPM[x][y] = newPM[x][y]/sumOfValues
 
-            print("Novo mapa de probabilidade: ")
-            print(newPM)
+            # print("Novo mapa de probabilidade: ")
+            # print(newPM)
 
             for agent in self.ghostId:
                 self.game_states[agent].agent_maps[pacman[0]] = newPM
-                print("Mapa de probabilidade do agente {}".format(agent))
-                print self.game_states[agent].agent_maps[pacman[0]]
+                # print("Mapa de probabilidade do agente {}".format(agent))
+                # print self.game_states[agent].agent_maps[pacman[0]]
 
             self.ghostId = []
             self.probability_map = []
@@ -323,18 +327,40 @@ class Controller(object):
             self.server.send(comm.AckMessage())
 
     def __set_goal__(self, msg):
+        """Set the agent new goal.
+
+        Args:
+            msg: A message of type GOAL_MSG
+        """
         behavior = self.agents[msg.agent_id].behaviors
+        allyBehavior = msg.goal
+        agentBehavior = self.agents[msg.agent_id].actual_behavior
+        # print("Comportamento do agente {}: {}".
+        # format(msg.agent_id, agentBehavior))
+        # print ("Comportamento recebido pelo agente {}: {}"
+        # format(msg.agent_id, allyBehavior))
 
-        print ("Comportamento recebido pelo agente {}: {}".format(msg.agent_id,
-                                                                  msg.goal))
-
-        if (str(msg.goal) == str(behavior[1])):  # SeekBehavior
-            print ("Comportamento a ser mudado: {}".format(behavior[2]))
+        if (str(allyBehavior) == str(behavior[0])) and self.game_states[
+                msg.agent_id].get_fragile_agent(msg.agent_id) == 1.0 and str(
+                    agentBehavior) != str(behavior[0]):
+            self.agents[msg.agent_id].communicationHappened = True
+            self.agents[msg.agent_id].actual_behavior = behavior[0]
+        elif (str(allyBehavior) == str(behavior[1]) and
+                str(agentBehavior) == str(behavior[0])):  # SeekBehavior
+                # print("Comportamento deve ser mudado para: {}".
+                # format(behavior[2]))
+            self.agents[msg.agent_id].communicationHappened = True
             self.agents[msg.agent_id].actual_behavior = behavior[2]
-        elif (str(msg.goal) == str(behavior[2])):  # PursueBehavior
-            print ("Comportamento a ser mudado: {}".format(behavior[1]))
+            print(self.agents[msg.agent_id].actual_behavior)
+        elif (str(allyBehavior) == str(behavior[2]) and
+                str(agentBehavior) == str(behavior[0])):  # PursueBehavior
+            # print("Comportamento deve ser mudado para: {}".
+            # format(behavior[1]))
+            self.agents[msg.agent_id].communicationHappened = True
             self.agents[msg.agent_id].actual_behavior = behavior[1]
-
+            print(self.agents[msg.agent_id].actual_behavior)
+        else:
+            self.agents[msg.agent_id].communicationHappened = False
         self.server.send(comm.AckMessage())
 
     def __process__(self, msg):
