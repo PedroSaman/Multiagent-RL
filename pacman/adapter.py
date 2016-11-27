@@ -164,6 +164,8 @@ class Adapter(object):
             self.comm = 'both'
         elif comm == 'none':
             self.comm = 'none'
+        elif comm == 'eqm':
+            self.comm = 'eqm'
         else:
             raise ValueError
             ('Communication type must be none, pm, state or both')
@@ -197,6 +199,9 @@ class Adapter(object):
 
         # Setup policy file
         self.policy_file = str(policy_file) if policy_file else None
+
+        # Setup MSE
+        self.mseCount = 0
 
         # Setup runs
         self.learn_runs = int(learn_runs)
@@ -293,6 +298,12 @@ class Adapter(object):
         log('{} behavior count: {}.'.format(type(agent).__name__,
                                             behavior_count))
 
+    def __update_mse_count__(self, agent=None):
+        msg = comm.RequestMSECountMessage()
+        reply_msg = agent.communicate(msg)
+        
+        self.mseCount += reply_msg.mse
+
     def __process_game__(self, policies, results):
         """Process the game.
 
@@ -334,7 +345,10 @@ class Adapter(object):
         if self.ghost_class == agents.BehaviorLearningGhostAgent:
             for ghost in self.ghosts:
                 self.__log_behavior_count__(ghost, results)
-
+        
+        if self.comm == 'eqm':
+            self.__update_mse_count__(self.pacman)
+        
         # Log score
         return simulated_game.state.getScore()
 
@@ -430,7 +444,8 @@ class Adapter(object):
 
         if self.policy_file:
             self.__save_policies__(policies)
-
+            
+        log('Mean Square Error {}'.format(self.mseCount/(self.learn_runs+self.test_runs)))
         log('Learn scores: {}'.format(results['learn_scores']))
         log('Test scores: {}'.format(results['test_scores']))
 

@@ -59,6 +59,8 @@ class Controller(object):
         self.server = server
         self.ghostId = []
         self.probability_map = []
+        self.numInstances = 0
+        self.instanceError = 0
 
         log('Ready')
 
@@ -174,6 +176,25 @@ class Controller(object):
 
         self.agents[agent_id].reset_behavior_count()
 
+    def __reset_mse_count__(self):
+        self.numInstances = 0
+        self.instanceError = 0
+
+    def __request_mse_count__(self, msg):
+        """Request Behavior Count.
+
+        Set the behavior count, create a reply_msg as a behavior count message
+        and send it to the server. Reset the behavior count.
+
+        Args:
+            agent_id: The identifier of an agent.
+        """
+        mse = self.instanceError/self.numInstances
+        reply_msg = comm.MSECountMessage(mse)
+        self.server.send(reply_msg)
+
+        self.__reset_mse_count__()
+
     def __send_agent_action__(self, msg):
         """Send the action of the agent.
 
@@ -279,6 +300,69 @@ class Controller(object):
         reply_msg = comm.ProbabilityMapMessage(agent_id=ident,
                                                probability_map=probability_map)
         self.server.send(reply_msg)
+
+    def __set_agent_pm_eqm__(self, msg):
+        """Set the probability map back to the agents."""
+        self.ghostId.append(msg.agent_id)
+        self.probability_map.append(msg.pm)
+        maxValue = 0
+        maxValueX = 0
+        maxValueY = 0
+
+        pacman = self.__get_enemies__(msg.agent_id)
+        # print("Mapa recebido do agente {}".format(msg.agent_id))
+        # print(msg.pm)
+        ident = msg.agent_id
+
+        if len(self.probability_map) == len(self.__get_allies__(ident))+1:
+            width = self.probability_map[0].width
+            height = self.probability_map[0].height
+            walls = self.probability_map[0].walls
+            sumOfValues = 0.0
+            newPM = Map(width, height, walls)
+
+            # Populate new matrix
+            for x in range(height):
+                for y in range(width):
+                    for probMap in self.probability_map:
+                        if not probMap._is_wall((x, y)):
+                            newPM[x][y] = newPM[x][y] + probMap[x][y]
+
+                    if not newPM._is_wall((x, y)):
+                        sumOfValues = sumOfValues + newPM[x][y]
+            # Normalize it
+            for x in range(height):
+                for y in range(width):
+                    if not newPM._is_wall((x, y)):
+                        newPM[x][y] = newPM[x][y]/sumOfValues
+                        if newPM[x][y] > maxValue:
+                            maxValue = newPM[x][y]
+                            maxValueX = x
+                            maxValueY = y
+            # print("Novo mapa de probabilidade: ")
+            # print(newPM)
+            
+            #Get the max value
+            
+            
+            self.numInstances += 1
+            pacman_pos = self.game_states[msg.agent_id].get_enemy_positions()
+            print("\nPacman Position: {}".format(pacman_pos))
+            print("Pacman Estimate Position: {}".format((maxValueX, maxValueY)))
+            print("Previous instanceError: {}".format(self.instanceError))
+            self.instanceError += self.game_states[0].calculate_distance((maxValueX, maxValueY), pacman_pos[0])
+            print("New Instance Error: {}".format(self.game_states[0].calculate_distance((maxValueX, maxValueY), pacman_pos[0])))
+            
+            for agent in self.ghostId:
+                self.game_states[agent].agent_maps[pacman[0]] = newPM
+                # print("Mapa de probabilidade do agente {}".format(agent))
+                # print self.game_states[agent].agent_maps[pacman[0]]
+
+            self.ghostId = []
+            self.probability_map = []
+            self.server.send(comm.AckMessage())
+        else:
+            self.server.send(comm.AckMessage())
 
     def __set_agent_pm__(self, msg):
         """Set the probability map back to the agents."""
@@ -394,6 +478,10 @@ class Controller(object):
             self.__request_goal__(msg)
         elif msg.type == comm.GOAL_MSG:
             self.__set_goal__(msg)
+        elif msg.type == comm.REQUEST_MSE_COUNT_MSG:
+            self.__request_mse_count__(msg)
+        elif msg.type == comm.PROBABILITY_MAP_MSE_MSG:
+            self.__set_agent_pm_eqm__(msg)
 
     def run(self):
         """Run the Controller.

@@ -48,7 +48,8 @@ import Queue
 from communication import (ZMQMessengerBase, RequestGameStartMessage,
                            RequestProbabilityMapMessage,
                            StateMessage, ProbabilityMapMessage,
-                           RequestGoalMessage, GoalMessage, ACK_MSG)
+                           RequestGoalMessage, GoalMessage, ACK_MSG,
+                           ProbabilityMapMSEMessage)
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -327,6 +328,13 @@ class GhostAdapterAgent(AdapterAgent):
         msg = ProbabilityMapMessage(agent_id=agent, probability_map=pm)
         self.client.send(msg)
         return self.client.receive()
+        
+        
+    def __load_probabilities_maps_mse__(self, agent, pm):
+        """Set the probability maps back to the agents."""
+        msg = ProbabilityMapMSEMessage(agent_id=agent, probability_map=pm)
+        self.client.send(msg)
+        return self.client.receive()
 
     def calculate_reward(self, current_score):
         """Calculate the reward.
@@ -370,6 +378,9 @@ class GhostAdapterAgent(AdapterAgent):
         if self.comm == 'pm':
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps__(self.agent_id, pm_map)
+        elif self.comm == 'eqm':
+            pm_map = self.__get_probability_map__(self.agent_id)
+            self.__load_probabilities_maps_mse__(self.agent_id, pm_map)
         elif self.comm == 'state':
             msg = self.__get_goal__(self.agent_id)
             if(msg.type != ACK_MSG):

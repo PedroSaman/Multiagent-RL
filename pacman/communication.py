@@ -151,11 +151,14 @@ class TCPClient(ZMQClient):
 ACK_MSG = 'Acknowledgment'
 ACTION_MSG = 'Action'
 BEHAVIOR_COUNT_MSG = 'BehaviorCount'
+MSE_COUNT_MSG = 'MSECount'
 POLICY_MSG = 'Policy'
 PROBABILITY_MAP_MSG = 'ProbabilityMap'
+PROBABILITY_MAP_MSE_MSG = 'ProbabilityMapMSE'
 REQUEST_REGISTER_MSG = 'RequestRegister'
 REQUEST_BEHAVIOR_COUNT_MSG = 'RequestBehaviorCount'
 REQUEST_GAME_START_MSG = 'RequestGameStart'
+REQUEST_MSE_COUNT_MSG = 'RequestMSECount'
 REQUEST_INIT_MSG = 'RequestInitialization'
 REQUEST_PM_MSG = 'RequestProbabilityMap'
 REQUEST_POLICY_MSG = 'RequestPolicy'
@@ -242,6 +245,27 @@ class BehaviorCountMessage(BaseMessage):
         self.count = count
 
 
+class MSECountMessage(BaseMessage):
+    """Carries the requested mean square error count.
+
+    Attributes:
+        count: The behavior count.
+    """
+
+    def __init__(self, mse=None):
+        """Constructor for BehaviorCountMessage.
+
+        Extends BaseMessage.
+
+        Args:
+            count: The behavior count.
+        """
+        super(MSECountMessage, self).__init__(msg_type=MSE_COUNT_MSG)
+
+        self.mse = mse
+
+
+
 class PolicyMessage(BaseMessage):
     """Carries the requested policy.
 
@@ -286,7 +310,27 @@ class ProbabilityMapMessage(BaseMessage):
         self.agent_id = agent_id
         self.pm = probability_map
 
+class ProbabilityMapMSEMessage(BaseMessage):
+    """Base Message for the probability map.
 
+    Attributes:
+        agent_id: The identifier of the agent.
+        pm: The probability map.
+    """
+
+    def __init__(self, agent_id=None, probability_map=None):
+        """Constructor for the ProbabilityMapMessage class.
+
+        Args:
+            agent_id: The identifier of the agent.
+            pm: The probability map.
+        """
+        super(ProbabilityMapMSEMessage,
+              self).__init__(msg_type=PROBABILITY_MAP_MSE_MSG)
+              
+        self.agent_id = agent_id
+        self.pm = probability_map
+        
 class GoalMessage(BaseMessage):
     """Base Message for the Behavior communication.
 
@@ -366,6 +410,23 @@ class RequestBehaviorCountMessage(RequestMessage):
 
         self.agent_id = agent_id
 
+class RequestMSECountMessage(RequestMessage):
+    """Requests the identified agent's RequestMessage count information.
+
+    Attributes:
+        agent_id: The identifer of an agent.
+    """
+
+    def __init__(self):
+        """The constructor of RequestBehaviorCountMessage.
+
+        Extends RequestMessage.
+
+        Args:
+            agent_id: The identifer of an agent.
+        """
+        super(RequestMSECountMessage,
+              self).__init__(msg_type=REQUEST_MSE_COUNT_MSG)
 
 class RequestGameStartMessage(RequestMessage):
     """Requests that a game be started for the identified agent.

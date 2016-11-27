@@ -158,8 +158,7 @@ def plot_behavior_count(agent_id, behavior_count):
                       for x in range(len(prob[i]))]
         ax.plot(regression, label=T[behavior],
                 c=COLOR_TABLE[COLOR_LIST[i]], linewidth=2.0)
-        # ax.scatter(range(len(prob[i])), prob[i],
-        # c=COLOR_TABLE[COLOR_LIST[i]], alpha=0.10)
+        ax.scatter(range(len(prob[i])), prob[i], c=COLOR_TABLE[COLOR_LIST[i]], alpha=1)
 
     ax.legend()
 
