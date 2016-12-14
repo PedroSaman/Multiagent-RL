@@ -46,6 +46,7 @@ DEFAULT_NUMBER_OF_TEST_RUNS = 15
 DEFAULT_OUTPUT_FILE = 'results.txt'
 DEFAULT_PACMAN_AGENT = 'random'
 DEFAULT_COMM = 'none'
+DEFAULT_MSE = 0
 
 # Pac-Man game configuration
 NUMBER_OF_BERKELEY_GAMES = 1
@@ -92,7 +93,8 @@ class Adapter(object):
                  client=None,
                  output_file=DEFAULT_OUTPUT_FILE,
                  graphics=False,
-                 comm=DEFAULT_COMM):
+                 comm=DEFAULT_COMM,
+                 mse=DEFAULT_MSE):
         """Constructor for the Adapter class.
 
         Setup the layout, the pacman agent, the ghosts agents, the policy file,
@@ -172,6 +174,14 @@ class Adapter(object):
 
         log('Communication defined to {}'.format(self.comm))
 
+
+        if mse == 1:
+            self.mse = True
+        elif mse == 0:
+            self.mse = False
+        else: 
+            raise ValueError('MSE must be 1 for True or 0 for False.')
+        
         # print comm
 
         # Setup Ghost agents
@@ -190,7 +200,7 @@ class Adapter(object):
         self.ghosts = []
         for x in xrange(num_ghosts):
             ghost = agents.GhostAdapterAgent(x + 1, client=client,
-                                             comm=self.comm)
+                                             comm=self.comm, mse=self.mse)
             log('Created {} #{}.'.format(ghost_name, ghost.agent_id))
             self.__register_agent__(ghost, 'ghost', self.ghost_class)
             self.ghosts.append(ghost)
@@ -202,6 +212,10 @@ class Adapter(object):
 
         # Setup MSE
         self.mseCount = 0
+        self.mseCounters = []
+        for ghost in self.ghosts:
+            self.mseCounters.append(0)
+    
 
         # Setup runs
         self.learn_runs = int(learn_runs)
@@ -298,11 +312,17 @@ class Adapter(object):
         log('{} behavior count: {}.'.format(type(agent).__name__,
                                             behavior_count))
 
-    def __update_mse_count__(self, agent=None):
+    def __update_mse_pm_count__(self, agent=None):
         msg = comm.RequestMSECountMessage()
         reply_msg = agent.communicate(msg)
         
         self.mseCount += reply_msg.mse
+        
+    def __update_mse_count__(self, agent=None):
+        msg = comm.RequestMSEMessage(agent=agent.agent_id)
+        reply_msg = agent.communicate(msg)
+        
+        self.mseCounters[agent.agent_id-1] += reply_msg.mse
 
     def __process_game__(self, policies, results):
         """Process the game.
@@ -338,6 +358,14 @@ class Adapter(object):
             * This as one list, probably by checking if agent is
                 instance of BehaviorLearningAgent (needs refactoring).
         """
+        
+        if self.mse == True:
+            for ghost in self.ghosts:
+                self.__update_mse_count__(agent=ghost)
+    
+        elif self.comm == 'eqm':
+            self.__update_mse_pm_count__(self.pacman)
+        
         # Log behavior count
         if self.pacman_class == agents.BehaviorLearningPacmanAgent:
             self.__log_behavior_count__(self.pacman, results)
@@ -346,8 +374,7 @@ class Adapter(object):
             for ghost in self.ghosts:
                 self.__log_behavior_count__(ghost, results)
         
-        if self.comm == 'eqm':
-            self.__update_mse_count__(self.pacman)
+    
         
         # Log score
         return simulated_game.state.getScore()
@@ -445,7 +472,14 @@ class Adapter(object):
         if self.policy_file:
             self.__save_policies__(policies)
             
-        log('Mean Square Error {}'.format(self.mseCount/(self.learn_runs+self.test_runs)))
+        if self.mse == True:
+            total = 0
+            for counter in self.mseCounters:
+                total += (counter/(self.learn_runs+self.test_runs))
+                log('Agent MSE: {}'.format(counter/(self.learn_runs+self.test_runs)))
+            log('Total mse: {}'.format(total/3))
+        elif self.comm == 'eqm':
+            log('Mean Square Error {}'.format(self.mseCount/(self.learn_runs+self.test_runs)))
         log('Learn scores: {}'.format(results['learn_scores']))
         log('Test scores: {}'.format(results['test_scores']))
 

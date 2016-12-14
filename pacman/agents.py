@@ -49,7 +49,7 @@ from communication import (ZMQMessengerBase, RequestGameStartMessage,
                            RequestProbabilityMapMessage,
                            StateMessage, ProbabilityMapMessage,
                            RequestGoalMessage, GoalMessage, ACK_MSG,
-                           ProbabilityMapMSEMessage)
+                           ProbabilityMapMSEMessage, MSEMessage)
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -108,6 +108,8 @@ class AdapterAgent(object, BerkeleyGameAgent):
         self.previous_action = Directions.STOP
 
         self.test_mode = False
+        
+        self.agentRealPosition = (0,0)
 
         self.simulationCount = 1
 
@@ -140,8 +142,8 @@ class AdapterAgent(object, BerkeleyGameAgent):
         Returns:
             A message requested to ZMQMessengerBase.
         """
+        #print msg
         self.client.send(msg)
-        # print msg
         return self.client.receive()
 
     def create_state_message(self, state):
@@ -294,7 +296,7 @@ class GhostAdapterAgent(AdapterAgent):
         previous_action: The previous action, defaul is Directions.NORTH.
     """
 
-    def __init__(self, agent_id, client, comm):
+    def __init__(self, agent_id, client, comm, mse):
         """Extend the Constructor method from the AdapterAgent superclass.
 
         Args:
@@ -305,6 +307,7 @@ class GhostAdapterAgent(AdapterAgent):
 
         self.previous_action = Directions.NORTH
         self.comm = comm
+        self.mse = mse
         # self.actions = GHOST_ACTIONS
 
     """Todo:
@@ -374,6 +377,12 @@ class GhostAdapterAgent(AdapterAgent):
         reply_msg = self.communicate(msg)
 
         self.previous_action = reply_msg.action
+
+        if self.mse == True:
+            msg = MSEMessage(agent_id=self.agent_id)
+            self.client.send(msg)
+            self.client.receive()
+
 
         if self.comm == 'pm':
             pm_map = self.__get_probability_map__(self.agent_id)

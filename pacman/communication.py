@@ -153,12 +153,14 @@ ACTION_MSG = 'Action'
 BEHAVIOR_COUNT_MSG = 'BehaviorCount'
 MSE_COUNT_MSG = 'MSECount'
 POLICY_MSG = 'Policy'
+MSE_MSG = 'MSEMessage'
 PROBABILITY_MAP_MSG = 'ProbabilityMap'
 PROBABILITY_MAP_MSE_MSG = 'ProbabilityMapMSE'
 REQUEST_REGISTER_MSG = 'RequestRegister'
 REQUEST_BEHAVIOR_COUNT_MSG = 'RequestBehaviorCount'
 REQUEST_GAME_START_MSG = 'RequestGameStart'
 REQUEST_MSE_COUNT_MSG = 'RequestMSECount'
+REQUEST_MSE_MSG = 'RequestMSE'
 REQUEST_INIT_MSG = 'RequestInitialization'
 REQUEST_PM_MSG = 'RequestProbabilityMap'
 REQUEST_POLICY_MSG = 'RequestPolicy'
@@ -265,7 +267,6 @@ class MSECountMessage(BaseMessage):
         self.mse = mse
 
 
-
 class PolicyMessage(BaseMessage):
     """Carries the requested policy.
 
@@ -353,6 +354,24 @@ class GoalMessage(BaseMessage):
 
         self.agent_id = agent_id
         self.goal = goal
+        
+        
+class MSEMessage(BaseMessage):
+    """
+    """
+
+    def __init__(self, agent_id=None):
+        """Constructor for the GoalMessage class.
+
+        Args:
+            agent_id: The identifier of the agent.
+            goal: A int value that determine wheater the agent is Seeking,
+                Pursuing or Fleeing.
+        """
+        super(MSEMessage,
+              self).__init__(msg_type=MSE_MSG)
+
+        self.agent_id = agent_id
 
 
 class RequestMessage(BaseMessage):
@@ -427,6 +446,27 @@ class RequestMSECountMessage(RequestMessage):
         """
         super(RequestMSECountMessage,
               self).__init__(msg_type=REQUEST_MSE_COUNT_MSG)
+
+
+class RequestMSEMessage(RequestMessage):
+    """Requests the identified agent's RequestMessage count information.
+
+    Attributes:
+        agent_id: The identifer of an agent.
+    """
+
+    def __init__(self, agent=None):
+        """The constructor of RequestBehaviorCountMessage.
+
+        Extends RequestMessage.
+
+        Args:
+            agent_id: The identifer of an agent.
+        """
+        super(RequestMSEMessage, self).__init__(msg_type=REQUEST_MSE_MSG)
+        
+        self.agent_id = agent
+
 
 class RequestGameStartMessage(RequestMessage):
     """Requests that a game be started for the identified agent.
