@@ -328,8 +328,7 @@ class GhostAdapterAgent(AdapterAgent):
         msg = ProbabilityMapMessage(agent_id=agent, probability_map=pm)
         self.client.send(msg)
         return self.client.receive()
-        
-        
+
     def __load_probabilities_maps_mse__(self, agent, pm):
         """Set the probability maps back to the agents."""
         msg = ProbabilityMapMSEMessage(agent_id=agent, probability_map=pm)
@@ -367,6 +366,7 @@ class GhostAdapterAgent(AdapterAgent):
 
         Args:
             state: A state of the game.
+
         Returns:
             An action from Directions.
         """
@@ -378,7 +378,7 @@ class GhostAdapterAgent(AdapterAgent):
         if self.comm == 'pm':
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps__(self.agent_id, pm_map)
-        elif self.comm == 'eqm':
+        elif self.comm == 'mse':
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps_mse__(self.agent_id, pm_map)
         elif self.comm == 'state':

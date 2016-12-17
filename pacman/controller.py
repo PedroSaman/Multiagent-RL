@@ -177,6 +177,7 @@ class Controller(object):
         self.agents[agent_id].reset_behavior_count()
 
     def __reset_mse_count__(self):
+        """Reset MSE Count."""
         self.numInstances = 0
         self.instanceError = 0
 
@@ -301,7 +302,7 @@ class Controller(object):
                                                probability_map=probability_map)
         self.server.send(reply_msg)
 
-    def __set_agent_pm_eqm__(self, msg):
+    def __set_agent_pm_mse__(self, msg):
         """Set the probability map back to the agents."""
         self.ghostId.append(msg.agent_id)
         self.probability_map.append(msg.pm)
@@ -341,18 +342,20 @@ class Controller(object):
                             maxValueY = y
             # print("Novo mapa de probabilidade: ")
             # print(newPM)
-            
-            #Get the max value
-            
-            
+
+            # Get the max value
+
             self.numInstances += 1
             pacman_pos = self.game_states[msg.agent_id].get_enemy_positions()
             print("\nPacman Position: {}".format(pacman_pos))
-            print("Pacman Estimate Position: {}".format((maxValueX, maxValueY)))
+            print("Pacman Estimate Position: {}".format((maxValueX,
+                                                         maxValueY)))
             print("Previous instanceError: {}".format(self.instanceError))
-            self.instanceError += self.game_states[0].calculate_distance((maxValueX, maxValueY), pacman_pos[0])
-            print("New Instance Error: {}".format(self.game_states[0].calculate_distance((maxValueX, maxValueY), pacman_pos[0])))
-            
+            self.instanceError += self.game_states[0].calculate_distance(
+                (maxValueX, maxValueY), pacman_pos[0])
+            print("New Instance Error: {}".format(
+                self.game_states[0].calculate_distance((maxValueX, maxValueY),
+                                                       pacman_pos[0])))
             for agent in self.ghostId:
                 self.game_states[agent].agent_maps[pacman[0]] = newPM
                 # print("Mapa de probabilidade do agente {}".format(agent))
@@ -481,7 +484,7 @@ class Controller(object):
         elif msg.type == comm.REQUEST_MSE_COUNT_MSG:
             self.__request_mse_count__(msg)
         elif msg.type == comm.PROBABILITY_MAP_MSE_MSG:
-            self.__set_agent_pm_eqm__(msg)
+            self.__set_agent_pm_mse__(msg)
 
     def run(self):
         """Run the Controller.

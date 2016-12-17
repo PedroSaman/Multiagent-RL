@@ -265,7 +265,6 @@ class MSECountMessage(BaseMessage):
         self.mse = mse
 
 
-
 class PolicyMessage(BaseMessage):
     """Carries the requested policy.
 
@@ -310,6 +309,7 @@ class ProbabilityMapMessage(BaseMessage):
         self.agent_id = agent_id
         self.pm = probability_map
 
+
 class ProbabilityMapMSEMessage(BaseMessage):
     """Base Message for the probability map.
 
@@ -327,10 +327,11 @@ class ProbabilityMapMSEMessage(BaseMessage):
         """
         super(ProbabilityMapMSEMessage,
               self).__init__(msg_type=PROBABILITY_MAP_MSE_MSG)
-              
+
         self.agent_id = agent_id
         self.pm = probability_map
-        
+
+
 class GoalMessage(BaseMessage):
     """Base Message for the Behavior communication.
 
@@ -410,6 +411,7 @@ class RequestBehaviorCountMessage(RequestMessage):
 
         self.agent_id = agent_id
 
+
 class RequestMSECountMessage(RequestMessage):
     """Requests the identified agent's RequestMessage count information.
 
@@ -427,6 +429,7 @@ class RequestMSECountMessage(RequestMessage):
         """
         super(RequestMSECountMessage,
               self).__init__(msg_type=REQUEST_MSE_COUNT_MSG)
+
 
 class RequestGameStartMessage(RequestMessage):
     """Requests that a game be started for the identified agent.
