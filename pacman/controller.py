@@ -59,8 +59,13 @@ class Controller(object):
         self.server = server
         self.ghostId = []
         self.probability_map = []
+        self.realPositions = 0
+
         self.numInstances = 0
         self.instanceError = 0
+
+        self.numInstancesArray = []
+        self.instanceErrorsArray = []
 
         log('Ready')
 
@@ -180,6 +185,13 @@ class Controller(object):
         """Reset MSE Count."""
         self.numInstances = 0
         self.instanceError = 0
+        # for instance in range(self.numInstancesArray):
+        #     print("foi")
+        #     self.numInstancesArray[instance] = 0
+        # for instance in range(self.instanceErrorsArray):
+        #      self.numInstancesArray[instance] = 0
+        self.numInstancesArray = []
+        self.instanceErrorsArray = []
 
     def __request_mse_count__(self, msg):
         """Request Behavior Count.
@@ -211,6 +223,7 @@ class Controller(object):
         game_state.set_walls(msg.wall_positions)
         game_state.set_food_positions(msg.food_positions)
 
+        self.realPositions = msg.realPosition
         agent_action = self.__choose_action__(msg)
         reply_msg = comm.ActionMessage(agent_id=msg.agent_id,
                                        action=agent_action)
@@ -257,6 +270,10 @@ class Controller(object):
         enemy_ids = self.__get_enemies__(msg.agent_id)
 
         eater = (self.agent_teams[msg.agent_id] == 'pacman')
+
+        if(self.agent_teams[msg.agent_id] != 'pacman'):
+            self.numInstancesArray.append(0)
+            self.instanceErrorsArray.append(0)
 
         if msg.agent_id in self.game_states:
             del self.game_states[msg.agent_id]
@@ -340,22 +357,24 @@ class Controller(object):
                             maxValue = newPM[x][y]
                             maxValueX = x
                             maxValueY = y
-            # print("Novo mapa de probabilidade: ")
-            # print(newPM)
+            print("Novo mapa de probabilidade: ")
+            print(newPM)
 
             # Get the max value
 
             self.numInstances += 1
-            pacman_pos = self.game_states[msg.agent_id].get_enemy_positions()
+            pacman_pos = self.realPositions
             print("\nPacman Position: {}".format(pacman_pos))
             print("Pacman Estimate Position: {}".format((maxValueX,
                                                          maxValueY)))
             print("Previous instanceError: {}".format(self.instanceError))
+
             self.instanceError += self.game_states[0].calculate_distance(
-                (maxValueX, maxValueY), pacman_pos[0])
+                (maxValueX, maxValueY), pacman_pos)
             print("New Instance Error: {}".format(
                 self.game_states[0].calculate_distance((maxValueX, maxValueY),
-                                                       pacman_pos[0])))
+                                                       pacman_pos)))
+
             for agent in self.ghostId:
                 self.game_states[agent].agent_maps[pacman[0]] = newPM
                 # print("Mapa de probabilidade do agente {}".format(agent))
@@ -450,6 +469,61 @@ class Controller(object):
             self.agents[msg.agent_id].communicationHappened = False
         self.server.send(comm.AckMessage())
 
+    def __set_mse__(self, msg):
+        """..."""
+        pacman = self.__get_enemies__(msg.agent_id)
+        pacman_pos = self.realPositions
+        print pacman_pos
+        pMap = self.game_states[msg.agent_id].agent_maps[pacman[0]]
+        print pMap
+
+        maxValue = 0
+        maxValueX = 0
+        maxValueY = 0
+
+        width = pMap.width
+        height = pMap.height
+
+        for x in range(height):
+            for y in range(width):
+                if not pMap._is_wall((x, y)):
+                    if pMap[x][y] > maxValue:
+                        maxValue = pMap[x][y]
+                        maxValueX = x
+                        maxValueY = y
+
+        coord = (maxValueX, maxValueY)
+        distance = self.game_states[0].calculate_distance(coord, pacman_pos)
+
+        self.numInstancesArray[msg.agent_id-1] += 1
+        self.instanceErrorsArray[msg.agent_id-1] += distance
+        print("\nNumero instancia: {}"
+              .format(self.numInstancesArray[msg.agent_id-1]))
+        print("Posicao pacman: {}".format(pacman_pos))
+        print("Posicao estimada: {}".format(coord))
+        print("Erro: {}".format(self.instanceErrorsArray[msg.agent_id-1]))
+
+        self.server.send(comm.AckMessage())
+
+    def __request_mse__(self, msg):
+        """..."""
+        print("\nRealizado request")
+        agent_id = msg.agent_id
+        print("Agent id: {}".format(agent_id-1))
+
+        error = self.instanceErrorsArray[agent_id-1]
+        instances = self.numInstancesArray[agent_id-1]
+
+        mse = error/instances
+        print("MSE do jogo: {}".format(mse))
+
+        reply_msg = comm.MSECountMessage(mse)
+        if(agent_id == len(self.agents)-1):
+            print(">>>>>>>>>>>>>>>>>>>")
+            self.__reset_mse_count__()
+
+        self.server.send(reply_msg)
+
     def __process__(self, msg):
         """Process the message type.
 
@@ -485,6 +559,10 @@ class Controller(object):
             self.__request_mse_count__(msg)
         elif msg.type == comm.PROBABILITY_MAP_MSE_MSG:
             self.__set_agent_pm_mse__(msg)
+        elif msg.type == comm.REQUEST_MSE_MSG:
+            self.__request_mse__(msg)
+        elif msg.type == comm.MSE_MSG:
+            self.__set_mse__(msg)
 
     def run(self):
         """Run the Controller.

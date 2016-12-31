@@ -153,12 +153,14 @@ ACTION_MSG = 'Action'
 BEHAVIOR_COUNT_MSG = 'BehaviorCount'
 MSE_COUNT_MSG = 'MSECount'
 POLICY_MSG = 'Policy'
+MSE_MSG = 'MSEMessage'
 PROBABILITY_MAP_MSG = 'ProbabilityMap'
 PROBABILITY_MAP_MSE_MSG = 'ProbabilityMapMSE'
 REQUEST_REGISTER_MSG = 'RequestRegister'
 REQUEST_BEHAVIOR_COUNT_MSG = 'RequestBehaviorCount'
 REQUEST_GAME_START_MSG = 'RequestGameStart'
 REQUEST_MSE_COUNT_MSG = 'RequestMSECount'
+REQUEST_MSE_MSG = 'RequestMSE'
 REQUEST_INIT_MSG = 'RequestInitialization'
 REQUEST_PM_MSG = 'RequestProbabilityMap'
 REQUEST_POLICY_MSG = 'RequestPolicy'
@@ -356,6 +358,23 @@ class GoalMessage(BaseMessage):
         self.goal = goal
 
 
+class MSEMessage(BaseMessage):
+    """Test."""
+
+    def __init__(self, agent_id=None):
+        """Constructor for the GoalMessage class.
+
+        Args:
+            agent_id: The identifier of the agent.
+            goal: A int value that determine wheater the agent is Seeking,
+                Pursuing or Fleeing.
+        """
+        super(MSEMessage,
+              self).__init__(msg_type=MSE_MSG)
+
+        self.agent_id = agent_id
+
+
 class RequestMessage(BaseMessage):
     """Requests some information."""
 
@@ -429,6 +448,25 @@ class RequestMSECountMessage(RequestMessage):
         """
         super(RequestMSECountMessage,
               self).__init__(msg_type=REQUEST_MSE_COUNT_MSG)
+
+
+class RequestMSEMessage(RequestMessage):
+    """Requests the identified agent's RequestMessage count information.
+
+    Attributes:
+        agent_id: The identifer of an agent.
+    """
+
+    def __init__(self, agent=None):
+        """The constructor of RequestBehaviorCountMessage.
+
+        Extends RequestMessage.
+
+        Args:
+            agent_id: The identifer of an agent.
+        """
+        super(RequestMSEMessage, self).__init__(msg_type=REQUEST_MSE_MSG)
+        self.agent_id = agent
 
 
 class RequestGameStartMessage(RequestMessage):
@@ -568,7 +606,7 @@ class StateMessage(BaseMessage):
     def __init__(self, agent_id=None, agent_positions=None,
                  food_positions=None, fragile_agents=None, wall_positions=None,
                  legal_actions=None, reward=None, executed_action=None,
-                 test_mode=None):
+                 test_mode=None, realPosition=None):
         """The constructor for StateMessage Class.
 
         Args:
@@ -593,3 +631,4 @@ class StateMessage(BaseMessage):
         self.reward = reward
         self.executed_action = executed_action
         self.test_mode = test_mode
+        self.realPosition = realPosition

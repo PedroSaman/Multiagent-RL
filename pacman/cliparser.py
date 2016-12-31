@@ -9,7 +9,7 @@ from argparse import ArgumentParser
 from adapter import (Adapter, DEFAULT_GHOST_AGENT, DEFAULT_LAYOUT,
                      DEFAULT_NUMBER_OF_GHOSTS, DEFAULT_NUMBER_OF_LEARNING_RUNS,
                      DEFAULT_NUMBER_OF_TEST_RUNS, DEFAULT_OUTPUT_FILE,
-                     DEFAULT_PACMAN_AGENT, DEFAULT_COMM)
+                     DEFAULT_PACMAN_AGENT, DEFAULT_COMM, DEFAULT_MSE)
 from agents import DEFAULT_NOISE
 from controller import Controller
 from communication import (TCPClient, TCPServer, DEFAULT_CLIENT_ADDRESS,
@@ -70,6 +70,10 @@ def get_Adapter():
     group.add_argument('-t', '--test-num', dest='test_runs', type=int,
                        default=DEFAULT_NUMBER_OF_TEST_RUNS,
                        help='number of games to test learned policy')
+    group.add_argument('--mse', dest='mse', type=int,
+                       default=DEFAULT_MSE,
+                       choices=[0, 1],
+                       help='Enable/Disable MSE calculation')
 
     group = parser.add_argument_group('Communication')
     group.add_argument('--comm', dest='comm', type=str,
@@ -101,7 +105,8 @@ def get_Adapter():
                       client=client,
                       output_file=args.output_file,
                       graphics=args.graphics,
-                      comm=args.comm)
+                      comm=args.comm,
+                      mse=args.mse)
 
     return adapter
 

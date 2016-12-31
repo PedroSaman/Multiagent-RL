@@ -49,7 +49,7 @@ from communication import (ZMQMessengerBase, RequestGameStartMessage,
                            RequestProbabilityMapMessage,
                            StateMessage, ProbabilityMapMessage,
                            RequestGoalMessage, GoalMessage, ACK_MSG,
-                           ProbabilityMapMSEMessage)
+                           ProbabilityMapMSEMessage, MSEMessage)
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -109,6 +109,8 @@ class AdapterAgent(object, BerkeleyGameAgent):
 
         self.test_mode = False
 
+        self.agentRealPosition = (0, 0)
+
         self.simulationCount = 1
 
     def __noise_error__(self):
@@ -117,7 +119,9 @@ class AdapterAgent(object, BerkeleyGameAgent):
         Return:
             Random noise.
         """
-        return random.randrange(-NOISE, NOISE + 1)
+        noiseError = random.randrange(-NOISE, NOISE + 1)
+        # print noiseError
+        return noiseError
 
     def calculate_reward(self, current_score):
         """Base calculate reward method.
@@ -140,8 +144,8 @@ class AdapterAgent(object, BerkeleyGameAgent):
         Returns:
             A message requested to ZMQMessengerBase.
         """
-        self.client.send(msg)
         # print msg
+        self.client.send(msg)
         return self.client.receive()
 
     def create_state_message(self, state):
@@ -160,9 +164,17 @@ class AdapterAgent(object, BerkeleyGameAgent):
         """
         agent_positions = {}
 
-        agent_positions[PACMAN_INDEX] = state.getPacmanPosition()[::-1]
+        pos = state.getPacmanPosition()
+        real_position = state.getPacmanPosition()
+        pos_y = pos[::-1][0]
+        pos_x = pos[::-1][1]
+        real_position = (pos_y, pos_x)
+        pos_y = pos[::-1][0] + self.__noise_error__()
+        pos_x = pos[::-1][1] + self.__noise_error__()
+        agent_positions[PACMAN_INDEX] = (pos_y, pos_x)
 
         for id_, pos in enumerate(state.getGhostPositions()):
+            # print("Id: {}".format(id_))
             pos_y = pos[::-1][0] + self.__noise_error__()
             pos_x = pos[::-1][1] + self.__noise_error__()
             agent_positions[id_ + 1] = (pos_y, pos_x)
@@ -194,7 +206,8 @@ class AdapterAgent(object, BerkeleyGameAgent):
                            legal_actions=state.getLegalActions(self.agent_id),
                            reward=reward,
                            executed_action=self.previous_action,
-                           test_mode=self.test_mode)
+                           test_mode=self.test_mode,
+                           realPosition=real_position)
 
         return msg
 
@@ -294,7 +307,7 @@ class GhostAdapterAgent(AdapterAgent):
         previous_action: The previous action, defaul is Directions.NORTH.
     """
 
-    def __init__(self, agent_id, client, comm):
+    def __init__(self, agent_id, client, comm, mse):
         """Extend the Constructor method from the AdapterAgent superclass.
 
         Args:
@@ -305,6 +318,7 @@ class GhostAdapterAgent(AdapterAgent):
 
         self.previous_action = Directions.NORTH
         self.comm = comm
+        self.mse = mse
         # self.actions = GHOST_ACTIONS
 
     """Todo:
@@ -374,6 +388,11 @@ class GhostAdapterAgent(AdapterAgent):
         reply_msg = self.communicate(msg)
 
         self.previous_action = reply_msg.action
+
+        if self.mse is True:
+            msg = MSEMessage(agent_id=self.agent_id)
+            self.client.send(msg)
+            self.client.receive()
 
         if self.comm == 'pm':
             pm_map = self.__get_probability_map__(self.agent_id)
