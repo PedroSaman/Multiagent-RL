@@ -21,7 +21,7 @@ CONTROLLER="controller.py"
 function setup_options {
 	EXP="$PACMAN: $LAYOUT; $NUM_GHOSTS ghosts; Comm: $COMM; Noise: $NOISE [$INSTANCE]"
 	AGENT_OPTIONS="--ghost-agent $GHOST --pacman-agent $PACMAN"
-	ITERATION_OPTIONS="--learn-num 1 --test-num 1"
+	ITERATION_OPTIONS="--learn-num 100 --test-num 15"
 	LAYOUT_OPTIONS="--layout $LAYOUT --num-ghosts $NUM_GHOSTS"
 	NOISE_COMM_OPT="--comm $COMM --noise $NOISE"
 	PORT="--port 8080"
