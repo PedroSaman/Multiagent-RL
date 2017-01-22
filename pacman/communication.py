@@ -164,9 +164,9 @@ REQUEST_MSE_MSG = 'RequestMSE'
 REQUEST_INIT_MSG = 'RequestInitialization'
 REQUEST_PM_MSG = 'RequestProbabilityMap'
 REQUEST_POLICY_MSG = 'RequestPolicy'
-REQUEST_GOAL_MSG = 'RequestGoal'
+REQUEST_LEARN_MSG = 'RequestLearn'
 STATE_MSG = 'State'
-GOAL_MSG = 'Goal'
+SHARE_LEARN_MSG = 'Learn'
 
 
 class BaseMessage(object):
@@ -334,7 +334,7 @@ class ProbabilityMapMSEMessage(BaseMessage):
         self.pm = probability_map
 
 
-class GoalMessage(BaseMessage):
+class SharedLearnMessage(BaseMessage):
     """Base Message for the Behavior communication.
 
     Attributes:
@@ -343,7 +343,8 @@ class GoalMessage(BaseMessage):
             or Fleeing.
     """
 
-    def __init__(self, agent_id=None, goal=None):
+    def __init__(self, agent_id=None, previous_behavior=None,
+                 reward=None, state=None):
         """Constructor for the GoalMessage class.
 
         Args:
@@ -351,11 +352,11 @@ class GoalMessage(BaseMessage):
             goal: A int value that determine wheater the agent is Seeking,
                 Pursuing or Fleeing.
         """
-        super(GoalMessage,
-              self).__init__(msg_type=GOAL_MSG)
-
+        super(SharedLearnMessage, self).__init__(msg_type=SHARE_LEARN_MSG)
         self.agent_id = agent_id
-        self.goal = goal
+        self.previous_behavior = previous_behavior
+        self.reward = reward
+        self.state = state
 
 
 class MSEMessage(BaseMessage):
@@ -565,7 +566,7 @@ class RequestProbabilityMapMessage(RequestMessage):
         self.agent_id = agent_id
 
 
-class RequestGoalMessage(RequestMessage):
+class RequestLearnMessage(RequestMessage):
     """Base Request Message for the Behavior communication.
 
     Attributes:
@@ -574,7 +575,7 @@ class RequestGoalMessage(RequestMessage):
             or Fleeing.
     """
 
-    def __init__(self, agent_id=None):
+    def __init__(self, agent_id=None, reward=None):
         """Constructor for the GoalMessage class.
 
         Args:
@@ -582,10 +583,11 @@ class RequestGoalMessage(RequestMessage):
             goal: A int value that determine wheater the agent is Seeking,
                 Pursuing or Fleeing.
         """
-        super(RequestGoalMessage,
-              self).__init__(msg_type=REQUEST_GOAL_MSG)
+        super(RequestLearnMessage,
+              self).__init__(msg_type=REQUEST_LEARN_MSG)
 
         self.agent_id = agent_id
+        self.reward = reward
 
 
 class StateMessage(BaseMessage):

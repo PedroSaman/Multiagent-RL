@@ -383,6 +383,7 @@ class QLearningWithApproximation(LearningAlgorithm):
             action: The action taken.
             reward: The reward received.
         """
+        # print self.previous_state
         if self.previous_state:
             delta = (reward + self.discount_factor *
                      self.get_max_q_value(state) -
@@ -391,6 +392,21 @@ class QLearningWithApproximation(LearningAlgorithm):
             self._update_weights(action, delta)
 
         self.previous_state = state
+
+    def learnFromOther(self, previous_state, state, action, reward):
+        """Update the weights and set the previous state.
+
+        Args:
+            state: The passed state.
+            action: The action taken.
+            reward: The reward received.
+        """
+        if previous_state:
+            delta = (reward + self.discount_factor *
+                     self.get_max_q_value(state) -
+                     self.get_q_value(previous_state, action))
+
+            self._update_weights(action, delta)
 
     def _explore(self):
         """Explore action.
@@ -408,17 +424,7 @@ class QLearningWithApproximation(LearningAlgorithm):
         """
         return self._get_max_action_from_list(state, self.actions)
 
-    def _exploitComm(self, state, actual_behavior):
-        """Exploit communication action.
-
-        Returns:
-            Max action from list of pair state-action.
-        """
-        actions = []
-        actions.append(actual_behavior)
-        return self._get_max_action_from_list(state, actions)
-
-    def act(self, state, actual_behavior, communicationHappened):
+    def act(self, state, actual_behavior):
         """Choose if the agent will explore or exploit and act.
 
         Args:
@@ -428,10 +434,7 @@ class QLearningWithApproximation(LearningAlgorithm):
         """
         p = random.random()
 
-        if communicationHappened:
-            # print("ExploitCommunication!")
-            return self._exploitComm(state, actual_behavior)
-        elif p < self.exploration_rate:
+        if p < self.exploration_rate:
             return self._explore()
         else:
             return self._exploit(state)

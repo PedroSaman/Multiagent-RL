@@ -67,6 +67,8 @@ class Controller(object):
         self.numInstancesArray = []
         self.instanceErrorsArray = []
 
+        self.learnTripples = []
+
         log('Ready')
 
     def __choose_action__(self, state):
@@ -185,11 +187,7 @@ class Controller(object):
         """Reset MSE Count."""
         self.numInstances = 0
         self.instanceError = 0
-        # for instance in range(self.numInstancesArray):
-        #     print("foi")
-        #     self.numInstancesArray[instance] = 0
-        # for instance in range(self.instanceErrorsArray):
-        #      self.numInstancesArray[instance] = 0
+
         self.numInstancesArray = []
         self.instanceErrorsArray = []
 
@@ -293,21 +291,22 @@ class Controller(object):
         log('Start game for {} #{}'.format(self.agent_teams[msg.agent_id],
                                            msg.agent_id))
 
-    def __request_goal__(self, msg):
+    def __request_learn__(self, msg):
         """Request the goal.
 
         Args:
             msg:  A message of type GOAL_MSG
         """
-        state = self.game_states[msg.agent_id]
         ident = msg.agent_id
-        ally = state.get_closest_ally()
-        if state.get_distance_to_agent(ally) < 7:
-            goal = self.agents[ally].previous_behavior
-            reply_msg = comm.GoalMessage(agent_id=ident, goal=goal)
-            self.server.send(reply_msg)
-        else:
-            self.server.send(comm.AckMessage())
+        pb = self.agents[ident].previous_behavior
+        reward = msg.reward
+        state = self.game_states[ident]
+
+        reply_msg = comm.SharedLearnMessage(agent_id=ident,
+                                            previous_behavior=pb,
+                                            reward=reward, state=state)
+
+        self.server.send(reply_msg)
 
     def __request_probability_map__(self, msg):
         """Request the probability maps."""
@@ -432,42 +431,41 @@ class Controller(object):
         else:
             self.server.send(comm.AckMessage())
 
-    def __set_goal__(self, msg):
+    def __share_learn__(self, msg):
         """Set the agent new goal.
 
         Args:
             msg: A message of type GOAL_MSG
         """
-        behavior = self.agents[msg.agent_id].behaviors
-        allyBehavior = msg.goal
-        agentBehavior = self.agents[msg.agent_id].actual_behavior
-        # print("Comportamento do agente {}: {}".
-        # format(msg.agent_id, agentBehavior))
-        # print ("Comportamento recebido pelo agente {}: {}"
-        # format(msg.agent_id, allyBehavior))
+        if (self.game_states[msg.agent_id].iteration % 5) == 0:
+            self.ghostId.append(msg.agent_id)
+            ps = self.agents[msg.agent_id].learning.previous_state
+            self.learnTripples.append((msg.agent_id, ps, msg.state,
+                                       msg.previous_behavior,
+                                       msg.reward))
 
-        if (str(allyBehavior) == str(behavior[0])) and self.game_states[
-                msg.agent_id].get_fragile_agent(msg.agent_id) == 1.0 and str(
-                    agentBehavior) != str(behavior[0]):
-            self.agents[msg.agent_id].communicationHappened = True
-            self.agents[msg.agent_id].actual_behavior = behavior[0]
-        elif (str(allyBehavior) == str(behavior[1]) and
-                str(agentBehavior) == str(behavior[0])):  # SeekBehavior
-                # print("Comportamento deve ser mudado para: {}".
-                # format(behavior[2]))
-            self.agents[msg.agent_id].communicationHappened = True
-            self.agents[msg.agent_id].actual_behavior = behavior[2]
-            # print(self.agents[msg.agent_id].actual_behavior)
-        elif (str(allyBehavior) == str(behavior[2]) and
-                str(agentBehavior) == str(behavior[0])):  # PursueBehavior
-            # print("Comportamento deve ser mudado para: {}".
-            # format(behavior[1]))
-            self.agents[msg.agent_id].communicationHappened = True
-            self.agents[msg.agent_id].actual_behavior = behavior[1]
-            # print(self.agents[msg.agent_id].actual_behavior)
+            num = len(self.__get_allies__(msg.agent_id))
+            if len(self.learnTripples) == num:
+                for agent in self.ghostId:
+                    for tripple in self.learnTripples:
+                        if agent != tripple[0]:
+                            ps = tripple[1]
+                            state = tripple[2]
+                            pb = tripple[3]
+                            reward = tripple[4]
+                            self.agents[agent].learning.learnFromOther(state,
+                                                                       ps, pb,
+                                                                       reward)
+                            print("Instancia: {}; Fantasma {} aprendeu"
+                                  .format(self.numInstances, agent))
+                self.ghostId = []
+                self.learnTripples = []
+
+                self.server.send(comm.AckMessage())
+            else:
+                self.server.send(comm.AckMessage())
         else:
-            self.agents[msg.agent_id].communicationHappened = False
-        self.server.send(comm.AckMessage())
+            self.server.send(comm.AckMessage())
 
     def __set_mse__(self, msg):
         """..."""
@@ -551,10 +549,10 @@ class Controller(object):
             self.__set_agent_pm__(msg)
         elif msg.type == comm.REQUEST_PM_MSG:
             self.__request_probability_map__(msg)
-        elif msg.type == comm.REQUEST_GOAL_MSG:
-            self.__request_goal__(msg)
-        elif msg.type == comm.GOAL_MSG:
-            self.__set_goal__(msg)
+        elif msg.type == comm.REQUEST_LEARN_MSG:
+            self.__request_learn__(msg)
+        elif msg.type == comm.SHARE_LEARN_MSG:
+            self.__share_learn__(msg)
         elif msg.type == comm.REQUEST_MSE_COUNT_MSG:
             self.__request_mse_count__(msg)
         elif msg.type == comm.PROBABILITY_MAP_MSE_MSG:

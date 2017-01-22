@@ -364,7 +364,7 @@ class Adapter(object):
             for ghost in self.ghosts:
                 self.__update_mse_count__(agent=ghost)
 
-        elif self.comm == 'eqm':
+        elif self.comm == 'mse':
             self.__update_mse_pm_count__(self.pacman)
 
         # Log behavior count
@@ -478,7 +478,7 @@ class Adapter(object):
                 log('Agent MSE: {}'.format(counter/(self.learn_runs +
                                                     self.test_runs)))
             log('Total mse: {}'.format(total/3))
-        elif self.comm == 'eqm':
+        elif self.comm == 'mse':
             log('Mean Square Error {}'.format(self.mseCount/(self.learn_runs +
                                                              self.test_runs)))
         log('Learn scores: {}'.format(results['learn_scores']))

@@ -48,8 +48,8 @@ import Queue
 from communication import (ZMQMessengerBase, RequestGameStartMessage,
                            RequestProbabilityMapMessage,
                            StateMessage, ProbabilityMapMessage,
-                           RequestGoalMessage, GoalMessage, ACK_MSG,
-                           ProbabilityMapMSEMessage, MSEMessage)
+                           RequestLearnMessage, SharedLearnMessage, ACK_MSG,
+                           ProbabilityMapMSEMessage, MSEMessage,)
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -359,19 +359,20 @@ class GhostAdapterAgent(AdapterAgent):
         """
         return self.previous_score - current_score
 
-    def __get_goal__(self, agent_id):
+    def __get_learn__(self, agent_id, reward):
         """Request the agent probability map.
 
         Args:
             agent: The agent to get the map.
         """
-        msg = RequestGoalMessage(agent_id)
+        msg = RequestLearnMessage(agent_id, reward)
         reply_msg = super(GhostAdapterAgent, self).communicate(msg)
         return reply_msg
 
-    def __load_goal__(self, agent, goal):
+    def __load_learn__(self, agent, pb, reward, state):
         """Set the probability maps back to the agents."""
-        msg = GoalMessage(agent_id=agent, goal=goal)
+        msg = SharedLearnMessage(agent_id=agent, previous_behavior=pb,
+                                 reward=reward, state=state)
         self.client.send(msg)
         return self.client.receive()
 
@@ -401,10 +402,9 @@ class GhostAdapterAgent(AdapterAgent):
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps_mse__(self.agent_id, pm_map)
         elif self.comm == 'state':
-            msg = self.__get_goal__(self.agent_id)
-            if(msg.type != ACK_MSG):
-                goal = msg.goal
-                self.__load_goal__(self.agent_id, goal)
+            msg = self.__get_learn__(self.agent_id, msg.reward)
+            self.__load_learn__(msg.agent_id, msg.previous_behavior,
+                                msg.reward, msg.state)
         elif self.comm == 'both':
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps__(self.agent_id, pm_map)
@@ -992,7 +992,6 @@ class BehaviorLearningGhostAgent(GhostAgent):
         self.previous_behavior = self.behaviors[0]
         self.behavior_count = {}
         self.reset_behavior_count()
-        self.communicationHappened = False
         self.actual_behavior = self.previous_behavior
         self.test_mode = False
 
@@ -1047,8 +1046,7 @@ class BehaviorLearningGhostAgent(GhostAgent):
         # print ("\nAgente {} Comunica:".format(self.agent_id))
         # print ("Antes - Behavior do agente {}: {}".
         # format(self.agent_id, self.actual_behavior))
-        behavior = self.learning.act(state, self.actual_behavior,
-                                     self.communicationHappened)
+        behavior = self.learning.act(state, self.actual_behavior)
         self.actual_behavior = behavior
         self.previous_behavior = behavior
         # print ("Depois - Behavior do agente {}: {}".
