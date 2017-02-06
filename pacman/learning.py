@@ -5,6 +5,7 @@
 
 from __future__ import division
 import random
+import copy
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -276,7 +277,7 @@ class QLearningWithApproximation(LearningAlgorithm):
         self.features = features
         self.learning_rate = learning_rate
         self.discount_factor = discount_factor
-        self.previous_state = None
+        self.previous_state = 0
         self.exploration_rate = exploration_rate
         self.weights = {}
         self._init_weights()
@@ -383,15 +384,15 @@ class QLearningWithApproximation(LearningAlgorithm):
             action: The action taken.
             reward: The reward received.
         """
-        # print self.previous_state
         if self.previous_state:
+
             delta = (reward + self.discount_factor *
                      self.get_max_q_value(state) -
                      self.get_q_value(self.previous_state, action))
 
             self._update_weights(action, delta)
 
-        self.previous_state = state
+        self.previous_state = copy.deepcopy(state)
 
     def learnFromOther(self, previous_state, state, action, reward):
         """Update the weights and set the previous state.

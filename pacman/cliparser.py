@@ -77,7 +77,7 @@ def get_Adapter():
 
     group = parser.add_argument_group('Communication')
     group.add_argument('--comm', dest='comm', type=str,
-                       choices=['none', 'pm', 'state', 'both', 'mse'],
+                       choices=['none', 'pm', 'sharedLearn', 'both', 'mse'],
                        default=DEFAULT_COMM,
                        help='Type of communication the agents will do')
     group.add_argument('--addr', dest='address', type=str,

@@ -411,6 +411,7 @@ class Controller(object):
 
                     if not newPM._is_wall((x, y)):
                         sumOfValues = sumOfValues + newPM[x][y]
+
             # Normalize it
             for x in range(height):
                 for y in range(width):
@@ -453,11 +454,19 @@ class Controller(object):
                             state = tripple[2]
                             pb = tripple[3]
                             reward = tripple[4]
+                            # print "\nAgent receiving info: {}".format(agent)
+                            # print "Information Recived from agent: {}"
+                            # .format(tripple[0])
+                            # print "Previous State: {}"
+                            # .format(tripple[1].get_position())
+                            # print "State: {}"
+                            # .format(tripple[2].get_position())
+                            # print "Behavior: {}".format(tripple[3])
+                            # print "Reward: {}".format(tripple[4])
                             self.agents[agent].learning.learnFromOther(state,
                                                                        ps, pb,
                                                                        reward)
-                            print("Instancia: {}; Fantasma {} aprendeu"
-                                  .format(self.numInstances, agent))
+
                 self.ghostId = []
                 self.learnTripples = []
 

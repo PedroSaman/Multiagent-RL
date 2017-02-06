@@ -401,7 +401,7 @@ class GhostAdapterAgent(AdapterAgent):
         elif self.comm == 'mse':
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps_mse__(self.agent_id, pm_map)
-        elif self.comm == 'state':
+        elif self.comm == 'sharedLearn':
             msg = self.__get_learn__(self.agent_id, msg.reward)
             self.__load_learn__(msg.agent_id, msg.previous_behavior,
                                 msg.reward, msg.state)

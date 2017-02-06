@@ -161,8 +161,8 @@ class Adapter(object):
 
         if comm == 'pm':
             self.comm = 'pm'
-        elif comm == 'state':
-            self.comm = 'state'
+        elif comm == 'sharedLearn':
+            self.comm = 'sharedLearn'
         elif comm == 'both':
             self.comm = 'both'
         elif comm == 'none':
