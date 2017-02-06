@@ -48,7 +48,7 @@ import Queue
 from communication import (ZMQMessengerBase, RequestGameStartMessage,
                            RequestProbabilityMapMessage,
                            StateMessage, ProbabilityMapMessage,
-                           RequestLearnMessage, SharedLearnMessage, ACK_MSG,
+                           RequestLearnMessage, SharedLearnMessage,
                            ProbabilityMapMSEMessage, MSEMessage,)
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
@@ -409,10 +409,9 @@ class GhostAdapterAgent(AdapterAgent):
             pm_map = self.__get_probability_map__(self.agent_id)
             self.__load_probabilities_maps__(self.agent_id, pm_map)
 
-            msg = self.__get_goal__(self.agent_id)
-            if(msg.type != ACK_MSG):
-                goal = msg.goal
-                self.__load_goal__(self.agent_id, goal)
+            msg = self.__get_learn__(self.agent_id, msg.reward)
+            self.__load_learn__(msg.agent_id, msg.previous_behavior,
+                                msg.reward, msg.state)
 
         if reply_msg.action not in state.getLegalActions(self.agent_id):
             self.invalid_action = True
