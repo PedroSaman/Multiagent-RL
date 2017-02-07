@@ -24,7 +24,7 @@ function setup_options {
 	ITERATION_OPTIONS="--learn-num 100 --test-num 15"
 	LAYOUT_OPTIONS="--layout $LAYOUT --num-ghosts $NUM_GHOSTS"
 	NOISE_COMM_OPT="--comm $COMM --noise $NOISE"
-	PORT="--port 8080"
+	PORT="--port 8002"
 	OPTIONS="$AGENT_OPTIONS $ITERATION_OPTIONS $LAYOUT_OPTIONS $NOISE_COMM_OPT"
 }
 
