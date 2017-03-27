@@ -60,12 +60,12 @@ do
 	do
 		for GHOST in "ai"
 		do
-			for PACMAN in "random2" "bfs" "fleet"	
+			for PACMAN in "random2" "BFS" "fleet"
 			do
 				for NUM_GHOSTS in "2" "3" "4"
 				do
 					for NOISE in "0" "3"
-					do	
+					do
 						for COMM in "none" "pm" "sharedLearn" "both"
 						do
 							test_with_current_setup

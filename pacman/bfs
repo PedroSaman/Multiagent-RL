@@ -24,7 +24,7 @@ function setup_options {
 	ITERATION_OPTIONS="--learn-num 100 --test-num 15"
 	LAYOUT_OPTIONS="--layout $LAYOUT --num-ghosts $NUM_GHOSTS"
 	NOISE_COMM_OPT="--comm $COMM --noise $NOISE"
-	PORT="--port 8003"
+	PORT="--port 8005"
 	OPTIONS="$AGENT_OPTIONS $ITERATION_OPTIONS $LAYOUT_OPTIONS $NOISE_COMM_OPT"
 }
 
@@ -54,14 +54,13 @@ function test_with_current_setup {
 	process
 }
 
-
-for INSTANCE in "15" "16" "17" "18" "19" "20" "21" "22"
+for INSTANCE in "01" "08" "15" "23"
 do
-	for LAYOUT in "classic"
+	for LAYOUT in "medium"
 	do
 		for GHOST in "ai"
 		do
-			for PACMAN in "random2" "BFS" "fleet"
+			for PACMAN in "BFS"
 			do
 				for NUM_GHOSTS in "2" "3" "4"
 				do
