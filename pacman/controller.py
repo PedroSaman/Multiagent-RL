@@ -327,8 +327,8 @@ class Controller(object):
         maxValueY = 0
 
         pacman = self.__get_enemies__(msg.agent_id)
-        # print("Mapa recebido do agente {}".format(msg.agent_id))
-        # print(msg.pm)
+        print("Mapa recebido do agente {}".format(msg.agent_id))
+        print(msg.pm)
         ident = msg.agent_id
 
         if len(self.probability_map) == len(self.__get_allies__(ident))+1:
@@ -356,6 +356,7 @@ class Controller(object):
                             maxValue = newPM[x][y]
                             maxValueX = x
                             maxValueY = y
+            print(">>>>>>>>>>>>>>>>>>>>>>>>")
             print("Novo mapa de probabilidade: ")
             print(newPM)
 
@@ -368,16 +369,17 @@ class Controller(object):
                                                          maxValueY)))
             print("Previous instanceError: {}".format(self.instanceError))
 
-            self.instanceError += self.game_states[0].calculate_distance(
-                (maxValueX, maxValueY), pacman_pos)
-            print("New Instance Error: {}".format(
-                self.game_states[0].calculate_distance((maxValueX, maxValueY),
-                                                       pacman_pos)))
+            self.instanceError += (abs(maxValueX - pacman_pos[0]) + abs(maxValueY - pacman_pos[1]))
 
+            print("New Instance Error: {}".format(abs(maxValueX - pacman_pos[0]) +
+                abs(maxValueY - pacman_pos[1])))
+
+            print ">>>>>>>>>>>>>>>>>>>>>>>>"
             for agent in self.ghostId:
                 self.game_states[agent].agent_maps[pacman[0]] = newPM
                 # print("Mapa de probabilidade do agente {}".format(agent))
                 # print self.game_states[agent].agent_maps[pacman[0]]
+
 
             self.ghostId = []
             self.probability_map = []
@@ -391,8 +393,8 @@ class Controller(object):
         self.probability_map.append(msg.pm)
 
         pacman = self.__get_enemies__(msg.agent_id)
-        # print("Mapa recebido do agente {}".format(msg.agent_id))
-        # print(msg.pm)
+        print("Mapa recebido do agente {}".format(msg.agent_id))
+        print(msg.pm)
         ident = msg.agent_id
 
         if len(self.probability_map) == len(self.__get_allies__(ident))+1:
@@ -418,8 +420,8 @@ class Controller(object):
                     if not newPM._is_wall((x, y)):
                         newPM[x][y] = newPM[x][y]/sumOfValues
 
-            # print("Novo mapa de probabilidade: ")
-            # print(newPM)
+            print("Novo mapa de probabilidade: ")
+            print(newPM)
 
             for agent in self.ghostId:
                 self.game_states[agent].agent_maps[pacman[0]] = newPM

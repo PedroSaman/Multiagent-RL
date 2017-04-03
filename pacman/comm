@@ -1,0 +1,78 @@
+#!/bin/bash
+
+
+#Test configurations
+#Run tests. There are 2 options:
+
+#./test     - which runs a simple test with a medium layout and 2 ghosts
+#./test all - which runs all possible configurations of layouts and ghosts
+#(may take a while....)
+
+#__author__ = "Matheus Portela and Guilherme N. Ramos"
+#__credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
+#               "Pedro Saman"]
+#__maintainer__ = "Guilherme N. Ramos"
+#__email__ = "gnramos@unb.br"
+
+
+ADAPTER="adapter.py"
+CONTROLLER="controller.py"
+
+function setup_options {
+	EXP="$PACMAN: $LAYOUT; $NUM_GHOSTS ghosts; Comm: $COMM; Noise: $NOISE [$INSTANCE]"
+	AGENT_OPTIONS="--ghost-agent $GHOST --pacman-agent $PACMAN"
+	ITERATION_OPTIONS="--learn-num 2 --test-num 3"
+	LAYOUT_OPTIONS="--layout $LAYOUT --num-ghosts $NUM_GHOSTS"
+	NOISE_COMM_OPT="--comm $COMM --noise $NOISE"
+	PORT="--port 8001"
+	OPTIONS="$AGENT_OPTIONS $ITERATION_OPTIONS $LAYOUT_OPTIONS $NOISE_COMM_OPT"
+}
+
+function add_results {
+	RESULTS_FILE="${LAYOUT}_${GHOST}_${NUM_GHOSTS}_${PACMAN}_${NOISE}_${COMM}_${INSTANCE}.txt"
+	rm -f $RESULTS_FILE
+	OPTIONS="$OPTIONS -o $RESULTS_FILE"
+}
+
+function process {
+	echo -e "\n\n$EXP\n"
+
+	python2 $CONTROLLER $PORT & pid_controller=$!
+	python2 $ADAPTER $OPTIONS $PORT & pid_adapter=$!
+	wait $pid_adapter > /dev/null
+	kill $pid_controller
+}
+
+function test_with_current_setup {
+	setup_options
+	process
+
+	add_results
+	process
+
+	EXP="$EXP (existing file)"
+	process
+}
+
+for INSTANCE in "01"
+do
+	for LAYOUT in "medium"
+	do
+		for GHOST in "ai"
+		do
+			for PACMAN in "fleet"
+			do
+				for NUM_GHOSTS in "4"
+				do
+					for NOISE in "3"
+					do
+						for COMM in "mse"
+						do
+							test_with_current_setup
+						done
+					done
+				done
+			done
+		done
+	done
+done
