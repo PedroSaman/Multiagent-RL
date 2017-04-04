@@ -21,7 +21,7 @@ CONTROLLER="controller.py"
 function setup_options {
 	EXP="$PACMAN: $LAYOUT; $NUM_GHOSTS ghosts; Comm: $COMM; Noise: $NOISE [$INSTANCE]"
 	AGENT_OPTIONS="--ghost-agent $GHOST --pacman-agent $PACMAN"
-	ITERATION_OPTIONS="--learn-num 2 --test-num 3 --mse 1"
+	ITERATION_OPTIONS="--learn-num 100 --test-num 15 --mse 1"
 	LAYOUT_OPTIONS="--layout $LAYOUT --num-ghosts $NUM_GHOSTS"
 	NOISE_COMM_OPT="--noise $NOISE"
 	PORT="--port 8009"
@@ -64,7 +64,7 @@ do
 			do
 				for NUM_GHOSTS in "4"
 				do
-					for NOISE in "3"
+					for NOISE in "15"
 					do
 						test_with_current_setup
 					done

@@ -327,8 +327,8 @@ class Controller(object):
         maxValueY = 0
 
         pacman = self.__get_enemies__(msg.agent_id)
-        print("Mapa recebido do agente {}".format(msg.agent_id))
-        print(msg.pm)
+        # print("Mapa recebido do agente {}".format(msg.agent_id))
+        # print(msg.pm)
         ident = msg.agent_id
 
         if len(self.probability_map) == len(self.__get_allies__(ident))+1:
@@ -356,9 +356,9 @@ class Controller(object):
                             maxValue = newPM[x][y]
                             maxValueX = x
                             maxValueY = y
-            print(">>>>>>>>>>>>>>>>>>>>>>>>")
-            print("Novo mapa de probabilidade: ")
-            print(newPM)
+            # print(">>>>>>>>>>>>>>>>>>>>>>>>")
+            # print("Novo mapa de probabilidade: ")
+            # print(newPM)
 
             # Get the max value
 
@@ -482,9 +482,9 @@ class Controller(object):
         """..."""
         pacman = self.__get_enemies__(msg.agent_id)
         pacman_pos = self.realPositions
-        print pacman_pos
+        # print pacman_pos
         pMap = self.game_states[msg.agent_id].agent_maps[pacman[0]]
-        print pMap
+        # print pMap
 
         maxValue = 0
         maxValueX = 0
@@ -502,7 +502,7 @@ class Controller(object):
                         maxValueY = y
 
         coord = (maxValueX, maxValueY)
-        distance = self.game_states[0].calculate_distance(coord, pacman_pos)
+        distance = (abs(maxValueX - pacman_pos[0]) + abs(maxValueY - pacman_pos[1]))
 
         self.numInstancesArray[msg.agent_id-1] += 1
         self.instanceErrorsArray[msg.agent_id-1] += distance
