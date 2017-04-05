@@ -145,9 +145,9 @@ class Adapter(object):
         elif pacman_agent == 'eater':
             self.pacman_class = agents.EaterPacmanAgent
         elif pacman_agent == 'bfs':
-            self.pacman_class = agents.BFS_PacmanAgent
+            self.pacman_class = agents.bfs_PacmanAgent
         elif pacman_agent == 'nimble':
-            self.pacman_class = agents.FleetPacmanAgent
+            self.pacman_class = agents.NimblePacmanAgent
         else:
             raise ValueError
             ('Pac-Man agent must be ai, random, random2, eater, bfs or nimble')
