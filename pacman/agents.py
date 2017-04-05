@@ -574,7 +574,7 @@ class RandomPacmanAgentTwo(PacmanAgent):
                 return action
 
 
-class BFS_PacmanAgent(PacmanAgent):
+class bfs_PacmanAgent(PacmanAgent):
     """Agent that search for the shortest food using BFS algorithm."""
 
     def choose_action(self, state, action, reward, legal_actions, explore):
@@ -675,7 +675,7 @@ class RandomGhostAgent(GhostAgent):
             return random.choice(legal_actions)
 
 
-class FleetPacmanAgent(PacmanAgent):
+class NimblePacmanAgent(PacmanAgent):
     """Pacman that run away from ghosts and get food.
 
     Attributes:
