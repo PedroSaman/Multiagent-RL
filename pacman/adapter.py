@@ -144,13 +144,13 @@ class Adapter(object):
             self.pacman_class = agents.BehaviorLearningPacmanAgent
         elif pacman_agent == 'eater':
             self.pacman_class = agents.EaterPacmanAgent
-        elif pacman_agent == 'BFS':
+        elif pacman_agent == 'bfs':
             self.pacman_class = agents.BFS_PacmanAgent
-        elif pacman_agent == 'fleet':
+        elif pacman_agent == 'nimble':
             self.pacman_class = agents.FleetPacmanAgent
         else:
             raise ValueError
-            ('Pac-Man agent must be ai, random, random2, eater, BFS or fleet')
+            ('Pac-Man agent must be ai, random, random2, eater, bfs or nimble')
 
         self.pacman = agents.PacmanAdapterAgent(client=client)
         log('Created {} #{}.'.format(self.pacman_class.__name__,
