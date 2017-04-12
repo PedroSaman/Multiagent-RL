@@ -120,7 +120,7 @@ class AdapterAgent(object, BerkeleyGameAgent):
             Random noise.
         """
         noiseError = random.randrange(-NOISE, NOISE + 1)
-        # print noiseError
+        print noiseError
         return noiseError
 
     def calculate_reward(self, current_score):
@@ -174,7 +174,6 @@ class AdapterAgent(object, BerkeleyGameAgent):
         agent_positions[PACMAN_INDEX] = (pos_y, pos_x)
 
         for id_, pos in enumerate(state.getGhostPositions()):
-            # print("Id: {}".format(id_))
             pos_y = pos[::-1][0] + self.__noise_error__()
             pos_x = pos[::-1][1] + self.__noise_error__()
             agent_positions[id_ + 1] = (pos_y, pos_x)

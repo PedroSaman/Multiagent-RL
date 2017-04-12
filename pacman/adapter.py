@@ -473,14 +473,32 @@ class Adapter(object):
 
         if self.mse is True:
             total = 0
+            i = 0
             for counter in self.mseCounters:
+                i = i + 1
                 total += (counter/(self.learn_runs+self.test_runs))
                 log('Agent MSE: {}'.format(counter/(self.learn_runs +
                                                     self.test_runs)))
-            log('Total mse: {}'.format(total/3))
+            log('Total mse: {}'.format(total/i))
+
+            if os.path.isfile("./no_comm.txt"):
+                f = open('no_comm.txt', 'a')
+            else:
+                f = open('no_comm.txt', 'w')
+            f.write(str(total/i))
+            f.write("\n")
+
+
         elif self.comm == 'mse':
             log('Mean Square Error {}'.format(self.mseCount/(self.learn_runs +
                                                              self.test_runs)))
+            if os.path.isfile("./comm.txt"):
+                f = open('comm.txt', 'a')
+            else:
+                f = open('comm.txt', 'w')
+            f.write(str(self.mseCount/(self.learn_runs + self.test_runs)))
+            f.write("\n")
+
         log('Learn scores: {}'.format(results['learn_scores']))
         log('Test scores: {}'.format(results['test_scores']))
 
