@@ -21,7 +21,7 @@ CONTROLLER="controller.py"
 function setup_options {
 	EXP="$PACMAN: $LAYOUT; $NUM_GHOSTS ghosts; Comm: $COMM; Noise: $NOISE [$INSTANCE]"
 	AGENT_OPTIONS="--ghost-agent $GHOST --pacman-agent $PACMAN"
-	ITERATION_OPTIONS="--learn-num 5 --test-num 5"
+	ITERATION_OPTIONS="--learn-num 100 --test-num 15"
 	LAYOUT_OPTIONS="--layout $LAYOUT --num-ghosts $NUM_GHOSTS"
 	NOISE_COMM_OPT="--comm $COMM --noise $NOISE"
 	PORT="--port 8001"
@@ -54,7 +54,7 @@ function test_with_current_setup {
 	process
 }
 
-for INSTANCE in "01" "02" "03" "04" "05" "06" "07"
+for INSTANCE in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20"
 do
 	for LAYOUT in "medium"
 	do
@@ -64,7 +64,7 @@ do
 			do
 				for NUM_GHOSTS in "4"
 				do
-					for NOISE in "6"
+					for NOISE in "3"
 					do
 						for COMM in "mse"
 						do

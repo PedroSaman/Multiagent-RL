@@ -4,10 +4,12 @@
 """Routes messages between server and agents."""
 
 from __future__ import division
+from math import log1p
 
 import cliparser
 import communication as comm
 from state import GameState, Map
+
 
 __author__ = "Matheus Portela and Guilherme N. Ramos"
 __credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
@@ -342,7 +344,8 @@ class Controller(object):
                 for y in range(width):
                     for probMap in self.probability_map:
                         if not probMap._is_wall((x, y)):
-                            newPM[x][y] = newPM[x][y] * probMap[x][y]
+                            # print probMap[x][y]
+                            newPM[x][y] = log1p(newPM[x][y]) + log1p(probMap[x][y])
                     if not newPM._is_wall((x, y)):
                         # print newPM[x][y]
                         sumOfValues = sumOfValues + newPM[x][y]
@@ -408,7 +411,7 @@ class Controller(object):
                 for y in range(width):
                     for probMap in self.probability_map:
                         if not probMap._is_wall((x, y)):
-                            newPM[x][y] = newPM[x][y] * probMap[x][y]
+                            newPM[x][y] = log1p(newPM[x][y]) + log1p(probMap[x][y])
 
                     if not newPM._is_wall((x, y)):
                         print newPM[x][y]
@@ -482,9 +485,9 @@ class Controller(object):
         """..."""
         pacman = self.__get_enemies__(msg.agent_id)
         pacman_pos = self.realPositions
-        # print pacman_pos
+        print pacman_pos
         pMap = self.game_states[msg.agent_id].agent_maps[pacman[0]]
-        # print pMap
+        print pMap
 
         maxValue = 0
         maxValueX = 0
@@ -506,29 +509,29 @@ class Controller(object):
 
         self.numInstancesArray[msg.agent_id-1] += 1
         self.instanceErrorsArray[msg.agent_id-1] += distance
-        # print("\nNumero instancia: {}"
-        #       .format(self.numInstancesArray[msg.agent_id-1]))
-        # print("Posicao pacman: {}".format(pacman_pos))
-        # print("Posicao estimada: {}".format(coord))
-        # print("Erro: {}".format(self.instanceErrorsArray[msg.agent_id-1]))
+        print("\nNumero instancia: {}"
+              .format(self.numInstancesArray[msg.agent_id-1]))
+        print("Posicao pacman: {}".format(pacman_pos))
+        print("Posicao estimada: {}".format(coord))
+        print("Erro: {}".format(self.instanceErrorsArray[msg.agent_id-1]))
 
         self.server.send(comm.AckMessage())
 
     def __request_mse__(self, msg):
         """..."""
-        # print("\nRealizado request")
+        print("\nRealizado request")
         agent_id = msg.agent_id
-        # print("Agent id: {}".format(agent_id-1))
+        print("Agent id: {}".format(agent_id-1))
 
         error = self.instanceErrorsArray[agent_id-1]
         instances = self.numInstancesArray[agent_id-1]
 
         mse = error/instances
-        # print("MSE do jogo: {}".format(mse))
+        print("MSE do jogo: {}".format(mse))
 
         reply_msg = comm.MSECountMessage(mse)
         if(agent_id == len(self.agents)-1):
-            # print(">>>>>>>>>>>>>>>>>>>")
+            print(">>>>>>>>>>>>>>>>>>>")
             self.__reset_mse_count__()
 
         self.server.send(reply_msg)

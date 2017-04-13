@@ -120,7 +120,7 @@ class AdapterAgent(object, BerkeleyGameAgent):
             Random noise.
         """
         noiseError = random.randrange(-NOISE, NOISE + 1)
-        print noiseError
+        # print noiseError
         return noiseError
 
     def calculate_reward(self, current_score):
