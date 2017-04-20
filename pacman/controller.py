@@ -66,6 +66,7 @@ class Controller(object):
         self.numInstances = 0
         self.instanceError = 0
 
+        self.mse = 0.0
         self.numInstancesArray = []
         self.instanceErrorsArray = []
 
@@ -189,6 +190,7 @@ class Controller(object):
         """Reset MSE Count."""
         self.numInstances = 0
         self.instanceError = 0
+        self.mse = 0
 
         self.numInstancesArray = []
         self.instanceErrorsArray = []
@@ -326,6 +328,7 @@ class Controller(object):
         maxValue = 0
         maxValueX = 0
         maxValueY = 0
+        aux_sum = 0.000000000000
 
         pacman = self.__get_enemies__(msg.agent_id)
         # print("Mapa recebido do agente {}".format(msg.agent_id))
@@ -354,10 +357,15 @@ class Controller(object):
                 for y in range(width):
                     if not newPM._is_wall((x, y)):
                         newPM[x][y] = newPM[x][y]/sumOfValues
+                        aux_sum = aux_sum + newPM[x][y]
                         if newPM[x][y] > maxValue:
                             maxValue = newPM[x][y]
+                            # print maxValue
                             maxValueX = x
                             maxValueY = y
+
+            # print aux_sum
+            # assert aux_sum == 1.0
             # print(">>>>>>>>>>>>>>>>>>>>>>>>")
             # print("Novo mapa de probabilidade: ")
             # print(newPM)
@@ -375,7 +383,7 @@ class Controller(object):
 
             # print("New Instance Error: {}".format(abs(maxValueX - pacman_pos[0]) +
             #     abs(maxValueY - pacman_pos[1])))
-            #
+
             # print ">>>>>>>>>>>>>>>>>>>>>>>>"
             for agent in self.ghostId:
                 self.game_states[agent].agent_maps[pacman[0]] = newPM
@@ -414,7 +422,7 @@ class Controller(object):
                             newPM[x][y] = log1p(newPM[x][y]) + log1p(probMap[x][y])
 
                     if not newPM._is_wall((x, y)):
-                        print newPM[x][y]
+                        # print newPM[x][y]
                         sumOfValues = sumOfValues + newPM[x][y]
 
             # Normalize it
@@ -485,9 +493,9 @@ class Controller(object):
         """..."""
         pacman = self.__get_enemies__(msg.agent_id)
         pacman_pos = self.realPositions
-        print pacman_pos
+        # print pacman_pos
         pMap = self.game_states[msg.agent_id].agent_maps[pacman[0]]
-        print pMap
+        # print pMap
 
         maxValue = 0
         maxValueX = 0
@@ -509,32 +517,38 @@ class Controller(object):
 
         self.numInstancesArray[msg.agent_id-1] += 1
         self.instanceErrorsArray[msg.agent_id-1] += distance
-        print("\nNumero instancia: {}"
-              .format(self.numInstancesArray[msg.agent_id-1]))
-        print("Posicao pacman: {}".format(pacman_pos))
-        print("Posicao estimada: {}".format(coord))
-        print("Erro: {}".format(self.instanceErrorsArray[msg.agent_id-1]))
+        # print("Agente: {}".format(msg.agent_id-1))
+        # print("\nNumero instancia: {}"
+        #       .format(self.numInstancesArray[msg.agent_id-1]))
+        # print("Posicao pacman: {}".format(pacman_pos))
+        # print("Posicao estimada: {}".format(coord))
+        # print("Erro instancia: {}".format(distance))
+        # print("Erro: {}".format(self.instanceErrorsArray[msg.agent_id-1]))
 
         self.server.send(comm.AckMessage())
 
     def __request_mse__(self, msg):
         """..."""
-        print("\nRealizado request")
+        # print("\nRealizado request")
         agent_id = msg.agent_id
         print("Agent id: {}".format(agent_id-1))
-
         error = self.instanceErrorsArray[agent_id-1]
         instances = self.numInstancesArray[agent_id-1]
-
         mse = error/instances
         print("MSE do jogo: {}".format(mse))
+        if(mse > self.mse):
+            self.mse = mse
 
-        reply_msg = comm.MSECountMessage(mse)
         if(agent_id == len(self.agents)-1):
+            print("Maior MSE: {}".format(self.mse))
             print(">>>>>>>>>>>>>>>>>>>")
+            reply_msg = comm.MSECountMessage(self.mse)
+            self.server.send(reply_msg)
             self.__reset_mse_count__()
+        else:
+            reply_msg = comm.MSECountMessage(0)
+            self.server.send(reply_msg)
 
-        self.server.send(reply_msg)
 
     def __process__(self, msg):
         """Process the message type.

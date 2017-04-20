@@ -323,7 +323,8 @@ class Adapter(object):
         msg = comm.RequestMSEMessage(agent=agent.agent_id)
         reply_msg = agent.communicate(msg)
 
-        self.mseCounters[agent.agent_id-1] += reply_msg.mse
+        if(reply_msg != comm.AckMessage):
+            self.mseCounters[0] += reply_msg.mse
 
     def __process_game__(self, policies, results):
         """Process the game.
@@ -473,19 +474,14 @@ class Adapter(object):
 
         if self.mse is True:
             total = 0
-            i = 0
-            for counter in self.mseCounters:
-                i = i + 1
-                total += (counter/(self.learn_runs+self.test_runs))
-                log('Agent MSE: {}'.format(counter/(self.learn_runs +
-                                                    self.test_runs)))
-            log('Total mse: {}'.format(total/i))
+            total = (self.mseCounters[0]/(self.learn_runs+self.test_runs))
+            log('Total mse: {}'.format(total))
 
             if os.path.isfile("./no_comm.txt"):
                 f = open('no_comm.txt', 'a')
             else:
                 f = open('no_comm.txt', 'w')
-            f.write(str(total/i))
+            f.write(str(total))
             f.write("\n")
 
 
