@@ -534,7 +534,7 @@ class RandomPacmanAgentTwo(PacmanAgent):
 
         Choose a random action and does the same until it reaches a wall or
         have more than three possible moves. If the more than three
-        possiblities is True the agent have twice the cange of continue to
+        possiblities is True the agent have twice the chance of continue to
         follow the same direction.
 
         Args:
