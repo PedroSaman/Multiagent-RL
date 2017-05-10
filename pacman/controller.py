@@ -379,7 +379,7 @@ class Controller(object):
             #                                              maxValueY)))
             # print("Previous instanceError: {}".format(self.instanceError))
 
-            self.instanceError += (abs(maxValueX - pacman_pos[0]) + abs(maxValueY - pacman_pos[1]))
+            self.instanceError += (abs(maxValueX - pacman_pos[0]) + abs(maxValueY - pacman_pos[1])) ** 2
 
             # print("New Instance Error: {}".format(abs(maxValueX - pacman_pos[0]) +
             #     abs(maxValueY - pacman_pos[1])))
@@ -513,7 +513,7 @@ class Controller(object):
                         maxValueY = y
 
         coord = (maxValueX, maxValueY)
-        distance = (abs(maxValueX - pacman_pos[0]) + abs(maxValueY - pacman_pos[1]))
+        distance = (abs(maxValueX - pacman_pos[0]) + abs(maxValueY - pacman_pos[1])) ** 2
 
         self.numInstancesArray[msg.agent_id-1] += 1
         self.instanceErrorsArray[msg.agent_id-1] += distance

@@ -19,17 +19,17 @@ ADAPTER="adapter.py"
 CONTROLLER="controller.py"
 
 function setup_options {
-	EXP="$PACMAN: $LAYOUT; $NUM_GHOSTS ghosts; Comm: $COMM; Noise: $NOISE [$INSTANCE]"
-	AGENT_OPTIONS="--ghost-agent $GHOST --pacman-agent $PACMAN"
-	ITERATION_OPTIONS="--learn-num 1 --test-num 1 --mse 1"
-	LAYOUT_OPTIONS="--layout $LAYOUT --num-ghosts $NUM_GHOSTS"
-	NOISE_COMM_OPT="--noise $NOISE"
-	PORT="--port 8009"
+	EXP="BFS: medium; 4 ghosts; Comm: mse; Noise: 3[$INSTANCE]"
+	AGENT_OPTIONS="--ghost-agent ai --pacman-agent bfs --mse 1"
+	ITERATION_OPTIONS="--learn-num 100 --test-num 15"
+	LAYOUT_OPTIONS="--layout medium --num-ghosts 4"
+	NOISE_COMM_OPT="--comm none --noise 3"
+	PORT="--port 8003"
 	OPTIONS="$AGENT_OPTIONS $ITERATION_OPTIONS $LAYOUT_OPTIONS $NOISE_COMM_OPT"
 }
 
 function add_results {
-	RESULTS_FILE="${LAYOUT}_${GHOST}_${NUM_GHOSTS}_${PACMAN}_${NOISE}_${COMM}_${INSTANCE}.txt"
+	RESULTS_FILE="(mse)_medium_ai_4_bfs_3_none_${INSTANCE}.txt"
 	rm -f $RESULTS_FILE
 	OPTIONS="$OPTIONS -o $RESULTS_FILE"
 }
@@ -56,20 +56,5 @@ function test_with_current_setup {
 
 for INSTANCE in "01"
 do
-	for LAYOUT in "medium"
-	do
-		for GHOST in "ai"
-		do
-			for PACMAN in "nimble"
-			do
-				for NUM_GHOSTS in "4"
-				do
-					for NOISE in "0"
-					do
-						test_with_current_setup
-					done
-				done
-			done
-		done
-	done
+	test_with_current_setup
 done

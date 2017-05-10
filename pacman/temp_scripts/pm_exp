@@ -1,0 +1,63 @@
+#!/bin/bash
+
+
+#Test configurations
+#Run tests. There are 2 options:
+
+#./test     - which runs a simple test with a medium layout and 2 ghosts
+#./test all - which runs all possible configurations of layouts and ghosts
+#(may take a while....)
+
+#__author__ = "Matheus Portela and Guilherme N. Ramos"
+#__credits__ = ["Matheus Portela", "Guilherme N. Ramos", "Renato Nobre",
+#               "Pedro Saman"]
+#__maintainer__ = "Guilherme N. Ramos"
+#__email__ = "gnramos@unb.br"
+
+
+ADAPTER="adapter.py"
+CONTROLLER="controller.py"
+
+function setup_options {
+	EXP="$PACMAN: medium; 4 ghosts; Comm: pm; Noise: 3 [$INSTANCE]"
+	AGENT_OPTIONS="--ghost-agent ai --pacman-agent $PACMAN"
+	ITERATION_OPTIONS="--learn-num 100 --test-num 15"
+	LAYOUT_OPTIONS="--layout medium --num-ghosts 4"
+	NOISE_COMM_OPT="--comm pm --noise 3"
+	PORT="--port 8005"
+	OPTIONS="$AGENT_OPTIONS $ITERATION_OPTIONS $LAYOUT_OPTIONS $NOISE_COMM_OPT"
+}
+
+function add_results {
+	RESULTS_FILE="medium_ai_4_${PACMAN}_3_pm_${INSTANCE}.txt"
+	rm -f $RESULTS_FILE
+	OPTIONS="$OPTIONS -o $RESULTS_FILE"
+}
+
+function process {
+	echo -e "\n\n$EXP\n"
+
+	python2 $CONTROLLER $PORT & pid_controller=$!
+	python2 $ADAPTER $OPTIONS $PORT & pid_adapter=$!
+	wait $pid_adapter > /dev/null
+	kill $pid_controller
+}
+
+function test_with_current_setup {
+	setup_options
+	process
+
+	add_results
+	process
+
+	EXP="$EXP (existing file)"
+	process
+}
+
+for INSTANCE in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12" "13" "14" "15" "16" "17" "18" "19" "20" "21" "22" "23" "24" "25" "26" "27" "28" "29" "30"
+do
+	for PACMAN in "bfs" "nimble"
+	do
+		test_with_current_setup
+	done
+done
